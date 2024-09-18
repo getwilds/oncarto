@@ -195,10 +195,10 @@ cancer_types = c(
 
 ```{r}
 cancerprof::incidence_cancer(
-      "WA", "county",
+      "USA", "state",
       "all cancer sites",
       "All Races (includes Hispanic)",
-      "both sexes",
+      "males",
       "all ages",
       "all stages",
       "latest 5 year average"
