@@ -19,6 +19,7 @@ pak("dplyr")
 pak("RColorBrewer")
 pak("tmap")
 pak("leaflet")
+pak("tigris")
 ```
 
 ```{r}
@@ -32,6 +33,7 @@ library(dplyr)
 library(RColorBrewer)
 library(tmap)
 library(leaflet)
+library(tigris) # state boundaries
 ```
 
 ```{r}
@@ -377,12 +379,6 @@ dbDisconnect(con)
 
 # Step 3. Visualize incidence data in a choropleth map
 
-Going with: https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html to get U.S. state boundaries
-
-```{r}
-# Read in a shape file corresponding to state boundaries in the US
-state_shapefile <- st_read("./cb_2018_us_state_500k/cb_2018_us_state_500k.shp")
-```
 NOTE: the following code will likely be replaced for the full-scale Shiny app
 
 ```{r}
@@ -397,12 +393,15 @@ incidence_by_cancer_type$NAME = gsub(
 ```
 
 ```{r}
-# Join the shape file with the incidence output data
-incidence_by_type_with_shape = inner_join(
-  state_shapefile, 
-  incidence_by_cancer_type, 
-  by = c("NAME")
-)
+# Get state boundaries using the tigris package
+states_sf <- tigris::states(cb = TRUE) %>%
+  st_as_sf()
+```
+
+```{r}
+# Join the cancer data with state boundaries based on state name
+incidence_by_type_with_shape <- states_sf %>%
+  left_join(incidence_by_cancer_type, by = "NAME")
 ```
 
 ```{r}
@@ -443,3 +442,5 @@ leaflet(incidence_by_type_with_shape) %>%
     title = "Cancer Incidence (All Sites)"
   )
 ```
+
+
