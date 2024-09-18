@@ -4,6 +4,8 @@ format: html
 editor: visual
 ---
 
+# Step 0. Install required packages and set parameters
+
 ```{r}
 library(pak)
 pak("getwilds/cancerprof@dev")
@@ -15,9 +17,9 @@ pak("sf")
 pak("ggplot2")
 pak("dplyr")
 pak("RColorBrewer")
+pak("tmap")
+pak("leaflet")
 ```
-
-## Collect Incidence Data (by cancer type)
 
 ```{r}
 library(duckdb)
@@ -28,14 +30,73 @@ library(sf)
 library(ggplot2)
 library(dplyr)
 library(RColorBrewer)
+library(tmap)
+library(leaflet)
 ```
 
 ```{r}
-# Create a new DuckDB database
+# Set parameters
+race = "All Races (includes Hispanic)"
+sex = "both sexes"
+age = "all ages"
+stage = "all stages"
+year = "latest 5 year average"
+
+cancer_types = c(
+  "all cancer sites",
+  "bladder",
+  "brain & ons",
+  "colon & rectum",
+  "esophagus",
+  "kidney & renal pelvis",
+  "leukemia",
+  "liver & bile duct",
+  "lung & bronchus",
+  "melanoma of the skin",
+  "non-hodgkin lymphoma",
+  "oral cavity & pharynx",
+  "pancreas",
+  "stomach",
+  "thyroid"
+)
+```
+
+
+# Step 1. Ingest incidence data from {cancerprof}
+```{r}
+# Create a new DuckDB database, corresponding to incidence data from US states
 con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
 ```
 
 ```{r}
+#' get_incidence_db_name: Get the right name for the data file to be saved
+#'
+#' @description 
+#' Based on the user-specified parameters of cancer, race, sex, age, stage, and
+#' year, return an appropriate name for the database file to be saved
+#'
+#' @param cancer The type of cancer (character)
+#' @param race The race of the population (character)
+#' @param sex The sex of the population (character)
+#' @param age The age group of the population (character)
+#' @param stage The stage of the cancer (character)
+#' @param year The desired timespan for the data (character)
+#'
+#' @return 
+#' The name of the database file to be saved to duckdb for this combination of
+#' parameters
+#'
+#' @examples 
+#' get_incidence_db_name(
+#'    "all cancer sites", 
+#'    "All Races (includes Hispanic)", 
+#'    "both sexes", 
+#'    "all ages", 
+#'    "all stages", 
+#'    "latest 5 year average"
+#' )
+#' 
+
 get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
   ## all cancer sites = all
   ## bladder = bladder
@@ -149,6 +210,35 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
 ```
 
 ```{r}
+#' get_incidence_df: Collect cancer incidence data by US state
+#'
+#' @description 
+#' Based on the user-specified parameters of cancer, race, sex, age, stage, and
+#' year, collect cancer incidence data by US state
+#'
+#' @param cancer The type of cancer (character)
+#' @param race The race of the population (character)
+#' @param sex The sex of the population (character)
+#' @param age The age group of the population (character)
+#' @param stage The stage of the cancer (character)
+#' @param year The desired timespan for the data (character)
+#'
+#' @return 
+#' The output cancer incidence dataframe to be saved to duckdb for this
+#' combination of parameters
+#'
+#' @examples 
+#' get_incidence_df(
+#'    "all cancer sites", 
+#'    "All Races (includes Hispanic)", 
+#'    "both sexes", 
+#'    "all ages", 
+#'    "all stages", 
+#'    "latest 5 year average"
+#' )
+#' 
+#' 
+
 get_incidence_df <- function(cancer, race, sex, age, stage, year){
   out = as.data.frame(
     cancerprof::incidence_cancer(
@@ -166,49 +256,15 @@ get_incidence_df <- function(cancer, race, sex, age, stage, year){
 }
 ```
 
-```{r}
-# Set parameters
-race = "All Races (includes Hispanic)"
-sex = "both sexes"
-age = "all ages"
-stage = "all stages"
-year = "latest 5 year average"
-
-cancer_types = c(
-  "all cancer sites",
-  "bladder",
-  "brain & ons",
-  "colon & rectum",
-  "esophagus",
-  "kidney & renal pelvis",
-  "leukemia",
-  "liver & bile duct",
-  "lung & bronchus",
-  "melanoma of the skin",
-  "non-hodgkin lymphoma",
-  "oral cavity & pharynx",
-  "pancreas",
-  "stomach",
-  "thyroid"
-)
-```
 
 ```{r}
-cancerprof::incidence_cancer(
-      "USA", "state",
-      "all cancer sites",
-      "All Races (includes Hispanic)",
-      "both sexes",
-      "all ages",
-      "all stages",
-      "latest 5 year average"
-    )
-```
-
-```{r}
+# Iterate over each type of cancer
 for (cancer in cancer_types) {
+  # For each cancer, get the name of the data file to be saved
   table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+  # If the data file is not already in the database...
   if (table_name %in% dbListTables(con) == FALSE) {
+    # Then write the dataframe corresponding to the incidence data to the db
     dbWriteTable(
       con,
       table_name,
@@ -219,43 +275,20 @@ for (cancer in cancer_types) {
 ```
 
 ```{r}
+# Get a list of all tables in the database
 dbListTables(con)
 ```
 
-# Merge DB data
 
+# Step 2. Merge DB data into a wide table
 ```{r}
-# Set parameters
-race = "All Races (includes Hispanic)"
-sex = "both sexes"
-age = "all ages"
-stage = "all stages"
-year = "latest 5 year average"
-
-cancer_types = c(
-  "all cancer sites",
-  "bladder",
-  "brain & ons",
-  "colon & rectum",
-  "esophagus",
-  "kidney & renal pelvis",
-  "leukemia",
-  "liver & bile duct",
-  "lung & bronchus",
-  "melanoma of the skin",
-  "non-hodgkin lymphoma",
-  "oral cavity & pharynx",
-  "pancreas",
-  "stomach",
-  "thyroid"
-)
-```
-
-```{r}
-# Get relevant tables from the db related to the parameters of interest
+# Get a list of relevant tables from the db related to the parameters of interest
 relevant_tables = c()
+# Iterate over each cancer type
 for (cancer in cancer_types) {
+  # Figure out what the name of the table should be if it exists in the db
   table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+  # If the table exists in the db, add its name to our list
   if (table_name %in% dbListTables(con)) {
     relevant_tables = c(relevant_tables, table_name)
   }
@@ -263,15 +296,25 @@ for (cancer in cancer_types) {
 ```
 
 ```{r}
-# Merge relevant tables to get final output data for cartographic visualization
+# Merge relevant tables from the db to get final output data for visualization
 incidence_by_cancer_type = data.frame()
+# Iterate over tables in our db related to our parameters of interest
 for (tableName in relevant_tables) {
+  # Get the type of cancer from the table's name
   cancerName = strsplit(tableName, "_")[[1]][3]
+  # If this is the first table we're adding to the output...
   if (nrow(incidence_by_cancer_type) == 0) {
+    # Read in the data, change the variable named "Age_Adjusted_Incidence_Rate"
+    # to be the name of the cancer type, and select this new column as well as
+    # the "State" column
     incidence_by_cancer_type = dbReadTable(con, tableName) %>%
       rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
       select(State, !!cancerName)
-  } else {
+  } 
+  # Otherwise, the output already has some information in it
+  else {
+    # Read in the data and join it to the existing output by State. Make sure
+    # to rename the Incidence Rate column to correspond to the cancer type
     incidence_by_cancer_type <- incidence_by_cancer_type %>%
       left_join(
         dbReadTable(con, tableName) %>%
@@ -282,43 +325,58 @@ for (tableName in relevant_tables) {
   }
 }
 
+# Return cancer incidence by state and cancer type
 incidence_by_cancer_type
 ```
 
 ```{r}
+# Disconnect from the database
 dbDisconnect(con)
 ```
 
-# Visualize data (TBD)
+# Step 3. Visualize data
+
+Going with: https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html to get U.S. state boundaries
 
 ```{r}
-incidence_by_cancer_type$NAME = gsub("\\s*\\([^\\)]+\\)", "", incidence_by_cancer_type$State)
-```
-
-```{r}
+# Read in a shape file corresponding to state boundaries in the US
 state_shapefile <- st_read("./cb_2018_us_state_500k/cb_2018_us_state_500k.shp")
 ```
 
 ```{r}
-incidence_by_type_with_shape = inner_join(state_shapefile, incidence_by_cancer_type, 
-           by = c("NAME"))
+# Make a new column called "NAME" in the incidence output data which includes
+# the name of the state and excludes data contained in parentheses in the
+# original {cancerprof} state name
+incidence_by_cancer_type$NAME = gsub(
+  "\\s*\\([^\\)]+\\)", 
+  "", 
+  incidence_by_cancer_type$State
+)
 ```
 
-Going with: https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+```{r}
+# Join the shape file with the incidence output data
+incidence_by_type_with_shape = inner_join(
+  state_shapefile, 
+  incidence_by_cancer_type, 
+  by = c("NAME")
+)
+```
 
 ```{r}
-library(tmap)
-
-# Create a static choropleth map
+# Create a static choropleth map using {tmap}
 tm_shape(incidence_by_type_with_shape) +
-  tm_polygons("allsites", title = "Cancer Incidence (All Sites)", palette = "Blues", style = "quantile") +
+  tm_polygons(
+    "allsites", 
+    title = "Cancer Incidence (All Sites)", 
+    palette = "Blues", 
+    style = "quantile"
+  ) +
   tm_layout(legend.outside = TRUE)
 ```
 
 ```{r}
-library(leaflet)
-
-# Create an interactive choropleth map
+# Create an interactive choropleth map using {leaflet}
 leaflet(incidence_by_type_with_shape) %>%
   addTiles() %>%
   addPolygons(
@@ -327,7 +385,19 @@ leaflet(incidence_by_type_with_shape) %>%
     opacity = 1,
     color = "white",
     fillOpacity = 0.7,
-    highlightOptions = highlightOptions(weight = 2, color = "#666", bringToFront = TRUE)
+    highlightOptions = highlightOptions(
+      weight = 2, 
+      color = "#666", 
+      bringToFront = TRUE
+    )
   ) %>%
-  addLegend(pal = colorQuantile("Blues", incidence_by_type_with_shape$allsites), values = ~allsites, opacity = 0.7, title = "Cancer Incidence (All Sites)")
+  addLegend(
+    pal = colorQuantile(
+      "Blues", 
+      incidence_by_type_with_shape$allsites
+    ),
+    values = ~allsites, 
+    opacity = 0.7, 
+    title = "Cancer Incidence (All Sites)"
+  )
 ```
