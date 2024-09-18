@@ -7,25 +7,46 @@
 #    https://shiny.posit.co/
 #
 
+# Call required libraries / packages
 library(pak)
 pak("getwilds/cancerprof@dev")
-
 library(shiny)
 library(duckdb)
 library(duckplyr)
 library(DBI)
 library(dbplyr)
-library(sf)
-library(ggplot2)
 library(dplyr)
-library(RColorBrewer)
-library(tmap)
+library(sf)
 library(leaflet)
-library(tigris) # state boundaries
+library(tigris)
 
+# Source in data ingestion helper functions
 source("./helper_functions.R")
 
-# Define UI for application that draws a histogram
+# Define the options for cancer types that can be viewed in the app
+cancer_types = c(
+  "all cancer sites",
+  "bladder",
+  "brain & ons",
+  "colon & rectum",
+  "esophagus",
+  "kidney & renal pelvis",
+  "leukemia",
+  "liver & bile duct",
+  "lung & bronchus",
+  "melanoma of the skin",
+  "non-hodgkin lymphoma",
+  "oral cavity & pharynx",
+  "pancreas",
+  "stomach",
+  "thyroid"
+)
+
+# Get state boundaries for the choropleth visualization using the tigris package
+states_sf <- tigris::states(cb = TRUE) %>%
+  st_as_sf()
+
+# Define UI
 ui <- fluidPage(
 
     # Application title
@@ -120,39 +141,17 @@ ui <- fluidPage(
           )
         ),
 
-
-        # Show a plot of the generated distribution
+        # Show the generated choropleth plot
         mainPanel(
            leafletOutput("choropleth")
         )
     )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
 
-    cancer_types = c(
-      "all cancer sites",
-      "bladder",
-      "brain & ons",
-      "colon & rectum",
-      "esophagus",
-      "kidney & renal pelvis",
-      "leukemia",
-      "liver & bile duct",
-      "lung & bronchus",
-      "melanoma of the skin",
-      "non-hodgkin lymphoma",
-      "oral cavity & pharynx",
-      "pancreas",
-      "stomach",
-      "thyroid"
-    )
-
-    # Get state boundaries using the tigris package
-    states_sf <- tigris::states(cb = TRUE) %>%
-      st_as_sf()
-
+    # Generate a choropleth plot using {leaflet}
     output$choropleth <- renderLeaflet({
       chosen_cancer = input$cancer_type
       race = input$race
@@ -161,10 +160,11 @@ server <- function(input, output) {
       stage = input$stage
       year = input$year
 
-      # Create a new DuckDB database, corresponding to incidence data from US states
+      # Create a new DuckDB corresponding to incidence data from US states
       con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
 
-      # Iterate over each type of cancer
+      ## 1. Ingest data from State Cancer Profiles if needed
+      # Iterate over each possible type of cancer
       for (cancer in cancer_types) {
         # For each cancer, get the name of the data file to be saved
         table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
@@ -179,6 +179,8 @@ server <- function(input, output) {
         }
       }
 
+      ## 2. Munge relevant data from State Cancer Prof to wide format for viz
+      # Based on input parameters,
       incidence_by_cancer_type = merge_all_incidence(
         cancer_types,
         race, sex, age, stage, year,
@@ -188,6 +190,7 @@ server <- function(input, output) {
       # Disconnect from the database
       dbDisconnect(con)
 
+      ## 3. Visualize wide data using {leaflet}
       # Make a new column called "NAME" in the incidence output data which includes
       # the name of the state and excludes data contained in parentheses in the
       # original {cancerprof} state name
@@ -202,11 +205,17 @@ server <- function(input, output) {
         left_join(incidence_by_cancer_type, by = "NAME")
 
       # Generate color palette based on the selected cancer data
-      pal <- colorNumeric("Blues", domain = incidence_by_type_with_shape[[chosen_cancer]], na.color = "transparent")
+      pal <- colorNumeric(
+        "Blues",
+        domain = incidence_by_type_with_shape[[chosen_cancer]],
+        na.color = "transparent"
+      )
 
       # Create an interactive choropleth map using {leaflet}
       leaflet(data = incidence_by_type_with_shape) %>%
         addTiles() %>%
+        # set initial zoom to focus on center of United States
+        setView(lng = -98.583, lat = 39.828, zoom = 2) %>%
         addPolygons(
           fillColor = ~pal(incidence_by_type_with_shape[[chosen_cancer]]),
           weight = 1,
@@ -228,11 +237,13 @@ server <- function(input, output) {
             direction = "auto"
           )
         ) %>%
-        addLegend(pal = pal,
-                  values = ~incidence_by_type_with_shape[[chosen_cancer]],
-                  opacity = 0.7,
-                  title = "Cancer Incidence",
-                  position = "bottomright")
+        addLegend(
+          pal = pal,
+          values = ~incidence_by_type_with_shape[[chosen_cancer]],
+          opacity = 0.7,
+          title = "Cancer Incidence",
+          position = "topright"
+        )
     })
 }
 
