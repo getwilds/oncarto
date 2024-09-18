@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-# Step 0. Install required packages and set parameters
+# Step 0. Install required packages, set parameters, and define functions
 
 ```{r}
 library(pak)
@@ -59,13 +59,6 @@ cancer_types = c(
   "stomach",
   "thyroid"
 )
-```
-
-
-# Step 1. Ingest incidence data from {cancerprof}
-```{r}
-# Create a new DuckDB database, corresponding to incidence data from US states
-con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
 ```
 
 ```{r}
@@ -256,6 +249,91 @@ get_incidence_df <- function(cancer, race, sex, age, stage, year){
 }
 ```
 
+```{r}
+#' merge_all_incidence: Join cancer incidence data across cancer types by state
+#'
+#' @description 
+#' Based on the user-specified parameters of race, sex, age, stage, and year, 
+#' collect cancer incidence data for all desired cancer types by US state
+#'
+#' @param cancer_types A list of all desired cancer types (vector)
+#' @param race The race of the population (character)
+#' @param sex The sex of the population (character)
+#' @param age The age group of the population (character)
+#' @param stage The stage of the cancer (character)
+#' @param year The desired timespan for the data (character)
+#' @param con The duckdb database to be accessed
+#'
+#' @return 
+#' The output cancer incidence dataframe to be saved to duckdb for this
+#' combination of parameters
+#'
+#' @examples 
+#' merge_all_incidence(
+#'    c("all cancer sites", "thyroid"), 
+#'    "All Races (includes Hispanic)", 
+#'    "both sexes", 
+#'    "all ages", 
+#'    "all stages", 
+#'    "latest 5 year average",
+#'     dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+#' )
+#' 
+#' 
+
+merge_all_incidence <- function(cancer_types, race, sex, age, stage, year, con){
+  # Get a list of relevant tables from the db related to the parameters of interest
+  relevant_tables = c()
+  # Iterate over each cancer type
+  for (cancer in cancer_types) {
+    # Figure out what the name of the table should be if it exists in the db
+    table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+    # If the table exists in the db, add its name to our list
+    if (table_name %in% dbListTables(con)) {
+      relevant_tables = c(relevant_tables, table_name)
+    }
+  }
+  
+  # Merge relevant tables from the db to get final output data for visualization
+  out = data.frame()
+  # Iterate over tables in our db related to our parameters of interest
+  for (tableName in relevant_tables) {
+    # Get the type of cancer from the table's name
+    cancerName = strsplit(tableName, "_")[[1]][3]
+    # If this is the first table we're adding to the output...
+    if (nrow(out) == 0) {
+      # Read in the data, change the variable named "Age_Adjusted_Incidence_Rate"
+      # to be the name of the cancer type, and select this new column as well as
+      # the "State" column
+      out = dbReadTable(con, tableName) %>%
+        rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
+        select(State, !!cancerName)
+    } 
+    # Otherwise, the output already has some information in it
+    else {
+      # Read in the data and join it to the existing output by State. Make sure
+      # to rename the Incidence Rate column to correspond to the cancer type
+      out <- out %>%
+        left_join(
+          dbReadTable(con, tableName) %>%
+          rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
+          select(State, !!cancerName), 
+          by = "State"
+        )
+    }
+  }
+  
+  # Return cancer incidence by state and cancer type
+  return(out)
+}
+```
+
+
+# Step 1. Ingest incidence data from {cancerprof}
+```{r}
+# Create a new DuckDB database, corresponding to incidence data from US states
+con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+```
 
 ```{r}
 # Iterate over each type of cancer
@@ -281,52 +359,13 @@ dbListTables(con)
 
 
 # Step 2. Merge DB data into a wide table
-```{r}
-# Get a list of relevant tables from the db related to the parameters of interest
-relevant_tables = c()
-# Iterate over each cancer type
-for (cancer in cancer_types) {
-  # Figure out what the name of the table should be if it exists in the db
-  table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
-  # If the table exists in the db, add its name to our list
-  if (table_name %in% dbListTables(con)) {
-    relevant_tables = c(relevant_tables, table_name)
-  }
-}
-```
 
 ```{r}
-# Merge relevant tables from the db to get final output data for visualization
-incidence_by_cancer_type = data.frame()
-# Iterate over tables in our db related to our parameters of interest
-for (tableName in relevant_tables) {
-  # Get the type of cancer from the table's name
-  cancerName = strsplit(tableName, "_")[[1]][3]
-  # If this is the first table we're adding to the output...
-  if (nrow(incidence_by_cancer_type) == 0) {
-    # Read in the data, change the variable named "Age_Adjusted_Incidence_Rate"
-    # to be the name of the cancer type, and select this new column as well as
-    # the "State" column
-    incidence_by_cancer_type = dbReadTable(con, tableName) %>%
-      rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
-      select(State, !!cancerName)
-  } 
-  # Otherwise, the output already has some information in it
-  else {
-    # Read in the data and join it to the existing output by State. Make sure
-    # to rename the Incidence Rate column to correspond to the cancer type
-    incidence_by_cancer_type <- incidence_by_cancer_type %>%
-      left_join(
-        dbReadTable(con, tableName) %>%
-        rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
-        select(State, !!cancerName), 
-        by = "State"
-      )
-  }
-}
-
-# Return cancer incidence by state and cancer type
-incidence_by_cancer_type
+incidence_by_cancer_type = merge_all_incidence(
+  cancer_types, 
+  race, sex, age, stage, year, 
+  con
+)
 ```
 
 ```{r}
@@ -334,7 +373,9 @@ incidence_by_cancer_type
 dbDisconnect(con)
 ```
 
-# Step 3. Visualize data
+
+
+# Step 3. Visualize incidence data in a choropleth map
 
 Going with: https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html to get U.S. state boundaries
 
@@ -342,6 +383,7 @@ Going with: https://www.census.gov/geographies/mapping-files/time-series/geo/car
 # Read in a shape file corresponding to state boundaries in the US
 state_shapefile <- st_read("./cb_2018_us_state_500k/cb_2018_us_state_500k.shp")
 ```
+NOTE: the following code will likely be replaced for the full-scale Shiny app
 
 ```{r}
 # Make a new column called "NAME" in the incidence output data which includes
