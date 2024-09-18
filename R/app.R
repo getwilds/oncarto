@@ -9,18 +9,6 @@
 
 library(pak)
 pak("getwilds/cancerprof@dev")
-pak("shiny")
-pak("duckdb")
-pak("duckplyr")
-pak("DBI")
-pak("dbplyr")
-pak("sf")
-pak("ggplot2")
-pak("dplyr")
-pak("RColorBrewer")
-pak("tmap")
-pak("leaflet")
-pak("tigris")
 
 library(shiny)
 library(duckdb)
@@ -87,11 +75,11 @@ ui <- fluidPage(
 
           selectInput(
             "sex",
-            "Select Race:",
+            "Select sex:",
             choices = c(
               "both sexes" = "both",
-              "male",
-              "female"
+              "males",
+              "females"
             ),
             selected = "both"
           ),
@@ -106,7 +94,7 @@ ui <- fluidPage(
               "ages <65" = "<65",
               "ages 65+" = "65+",
               "ages <15" = "15",
-              "ages <20" = "20",
+              "ages <20" = "20"
             ),
             selected = "all"
           ),
@@ -116,7 +104,7 @@ ui <- fluidPage(
             "Select cancer stage:",
             choices = c(
               "all stages" = "allstages",
-              "late stage (regional & distant)" = "latestage",
+              "late stage (regional & distant)" = "latestage"
             ),
             selected = "allstages"
           ),
@@ -143,15 +131,108 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    output$choropleth <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    cancer_types = c(
+      "all cancer sites",
+      "bladder",
+      "brain & ons",
+      "colon & rectum",
+      "esophagus",
+      "kidney & renal pelvis",
+      "leukemia",
+      "liver & bile duct",
+      "lung & bronchus",
+      "melanoma of the skin",
+      "non-hodgkin lymphoma",
+      "oral cavity & pharynx",
+      "pancreas",
+      "stomach",
+      "thyroid"
+    )
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
+    # Get state boundaries using the tigris package
+    states_sf <- tigris::states(cb = TRUE) %>%
+      st_as_sf()
+
+    output$choropleth <- renderLeaflet({
+      chosen_cancer = input$cancer_type
+      race = input$race
+      sex = input$sex
+      age = input$age
+      stage = input$stage
+      year = input$year
+
+      # Create a new DuckDB database, corresponding to incidence data from US states
+      con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+
+      # Iterate over each type of cancer
+      for (cancer in cancer_types) {
+        # For each cancer, get the name of the data file to be saved
+        table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+        # If the data file is not already in the database...
+        if (table_name %in% dbListTables(con) == FALSE) {
+          # Then write the dataframe corresponding to the incidence data to the db
+          dbWriteTable(
+            con,
+            table_name,
+            get_incidence_df(cancer, race, sex, age, stage, year)
+          )
+        }
+      }
+
+      incidence_by_cancer_type = merge_all_incidence(
+        cancer_types,
+        race, sex, age, stage, year,
+        con
+      )
+
+      # Disconnect from the database
+      dbDisconnect(con)
+
+      # Make a new column called "NAME" in the incidence output data which includes
+      # the name of the state and excludes data contained in parentheses in the
+      # original {cancerprof} state name
+      incidence_by_cancer_type$NAME = gsub(
+        "\\s*\\([^\\)]+\\)",
+        "",
+        incidence_by_cancer_type$State
+      )
+
+      # Join the cancer data with state boundaries based on state name
+      incidence_by_type_with_shape <- states_sf %>%
+        left_join(incidence_by_cancer_type, by = "NAME")
+
+      # Generate color palette based on the selected cancer data
+      pal <- colorNumeric("Blues", domain = incidence_by_type_with_shape[[chosen_cancer]], na.color = "transparent")
+
+      # Create an interactive choropleth map using {leaflet}
+      leaflet(data = incidence_by_type_with_shape) %>%
+        addTiles() %>%
+        addPolygons(
+          fillColor = ~pal(incidence_by_type_with_shape[[chosen_cancer]]),
+          weight = 1,
+          opacity = 1,
+          color = "white",
+          dashArray = "3",
+          fillOpacity = 0.7,
+          highlightOptions = highlightOptions(
+            weight = 3,
+            color = "#666",
+            dashArray = "",
+            fillOpacity = 0.7,
+            bringToFront = TRUE
+          ),
+          label = ~paste(NAME, ": ", incidence_by_type_with_shape[[chosen_cancer]]),
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto"
+          )
+        ) %>%
+        addLegend(pal = pal,
+                  values = ~incidence_by_type_with_shape[[chosen_cancer]],
+                  opacity = 0.7,
+                  title = "Cancer Incidence",
+                  position = "bottomright")
     })
 }
 
