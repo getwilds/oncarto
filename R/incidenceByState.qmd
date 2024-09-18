@@ -134,7 +134,7 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
     c_name = "oral"
   } 
 
-  ## All Races (includes Hispanic) = all
+  ## All Races (includes Hispanic) = allraces
   ## White (non-Hispanic) = white
   ## Black (non-Hispanic) = black
   ## American Indian / Alaska Native (non-Hispanic) = native
@@ -153,9 +153,9 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
     r_name = "hisp"
   }
   
-  ## both sexes = b
-  ## male = m
-  ## female = f
+  ## both sexes = both
+  ## male = male
+  ## female = female
   sx_name = "bothsexes" # both sexes
   if (sex == "male") {
     sx_name = "male"
@@ -185,15 +185,15 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
     a_name = "20"
   }
   
-  ## all stages = all
-  ## late stage (regional & distant) = late
+  ## all stages = allstage
+  ## late stage (regional & distant) = latestage
   st_name = "allstages" # all stages
   if (stage == "late stage (regional & distant)") {
     st_name = "latestage"
   }
   
-  ## latest 5 year average = avg
-  ## latest single year (us by state) = one
+  ## latest 5 year average = 5yr
+  ## latest single year (us by state) = 1yr
   y_name = "5yr" # latest 5 year average
   if (stage == "latest single year (us by state)") {
     y_name = "1yr"
