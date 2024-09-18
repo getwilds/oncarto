@@ -35,10 +35,7 @@ library(tmap)
 library(leaflet)
 library(tigris) # state boundaries
 
-
-
-
-
+source("./helper_functions.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
