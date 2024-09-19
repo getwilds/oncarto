@@ -17,7 +17,7 @@
 ## include box at bottom of app
 ## make Shiny app run when you call "oncarto" from the R console
 ## fill out additional tabs / background
-## debug app updating?
+## tie "render leaflet" to just the generate button (don't automatically update w input)
 
 # Call required libraries / packages
 library(pak)
@@ -219,7 +219,22 @@ ui <- dashboardPage(
           ),
 
           fluidRow(
-            column(12, leafletOutput("choropleth"))
+            column(
+              12,
+              box(
+                width = 12,
+                leafletOutput("choropleth"))
+              )
+            ),
+
+          fluidRow(
+            column(
+              12,
+              box(
+                width = 12,
+                uiOutput(outputId = "contactInfo")
+              )
+            )
           )
         ),
 
@@ -240,61 +255,78 @@ ui <- dashboardPage(
 
 # Define server logic
 server <- function(input, output, session) {
+    daslWebsite <- a("Data Science Lab (DaSL).", href="https://hutchdatascience.org")
+    daslTA <- a("Translational Analytics", href="https://hutchdatascience.org/tr-analytics/")
+    daslEmail <- a("analytics@fredhutch.org.", href="mailto:analytics@fredhutch.org")
+
+    output$contactInfo <- renderUI({
+      HTML(
+        paste(
+          "This application was developed by the Fred Hutch ",
+          daslWebsite,
+          "For questions or feedback regarding this application, email DaSL ",
+          daslTA,
+          " at ",
+          daslEmail,
+          ""
+        )
+      )
+    })
 
     observeEvent(input$generateMap, {
+      chosen_cancer = input$cancer_type
+      race = input$race
+      sex = input$sex
+      age = input$age
+      stage = input$stage
+      year = input$year
+
+      # Create a new DuckDB corresponding to incidence data from US states
+      con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+
+      ## 1. Ingest data from State Cancer Profiles if needed
+      # Iterate over each possible type of cancer
+      for (cancer in cancer_types) {
+        # For each cancer, get the name of the data file to be saved
+        table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+        # If the data file is not already in the database...
+        if (table_name %in% dbListTables(con) == FALSE) {
+          # Then write the dataframe corresponding to the incidence data to the db
+          dbWriteTable(
+            con,
+            table_name,
+            get_incidence_df(cancer, race, sex, age, stage, year)
+          )
+        }
+      }
+
+      ## 2. Munge relevant data from State Cancer Prof to wide format for viz
+      # Based on input parameters,
+      incidence_by_cancer_type = merge_all_incidence(
+        cancer_types,
+        race, sex, age, stage, year,
+        con
+      )
+
+      # Disconnect from the database
+      dbDisconnect(con)
+
+      ## 3. Visualize wide data using {leaflet}
+      # Make a new column called "NAME" in the incidence output data which includes
+      # the name of the state and excludes data contained in parentheses in the
+      # original {cancerprof} state name
+      incidence_by_cancer_type$NAME = gsub(
+        "\\s*\\([^\\)]+\\)",
+        "",
+        incidence_by_cancer_type$State
+      )
+
+      # Join the cancer data with state boundaries based on state name
+      incidence_by_type_with_shape <- states_sf %>%
+        left_join(incidence_by_cancer_type, by = "NAME")
+
       # Generate a choropleth plot using {leaflet}
       output$choropleth <- renderLeaflet({
-        chosen_cancer = input$cancer_type
-        race = input$race
-        sex = input$sex
-        age = input$age
-        stage = input$stage
-        year = input$year
-
-        # Create a new DuckDB corresponding to incidence data from US states
-        con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
-
-        ## 1. Ingest data from State Cancer Profiles if needed
-        # Iterate over each possible type of cancer
-        for (cancer in cancer_types) {
-          # For each cancer, get the name of the data file to be saved
-          table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
-          # If the data file is not already in the database...
-          if (table_name %in% dbListTables(con) == FALSE) {
-            # Then write the dataframe corresponding to the incidence data to the db
-            dbWriteTable(
-              con,
-              table_name,
-              get_incidence_df(cancer, race, sex, age, stage, year)
-            )
-          }
-        }
-
-        ## 2. Munge relevant data from State Cancer Prof to wide format for viz
-        # Based on input parameters,
-        incidence_by_cancer_type = merge_all_incidence(
-          cancer_types,
-          race, sex, age, stage, year,
-          con
-        )
-
-        # Disconnect from the database
-        dbDisconnect(con)
-
-        ## 3. Visualize wide data using {leaflet}
-        # Make a new column called "NAME" in the incidence output data which includes
-        # the name of the state and excludes data contained in parentheses in the
-        # original {cancerprof} state name
-        incidence_by_cancer_type$NAME = gsub(
-          "\\s*\\([^\\)]+\\)",
-          "",
-          incidence_by_cancer_type$State
-        )
-
-        # Join the cancer data with state boundaries based on state name
-        incidence_by_type_with_shape <- states_sf %>%
-          left_join(incidence_by_cancer_type, by = "NAME")
-
         # Generate color palette based on the selected cancer data
         pal <- colorNumeric(
           "Blues",
