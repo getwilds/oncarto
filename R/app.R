@@ -7,6 +7,17 @@
 #    https://shiny.posit.co/
 #
 
+## TODO:
+## update select input titles and dropdowns for consistency
+## include a "generate" and "clear" button to make and delete the maps
+## comment the code
+## change the colors of the leaflet plot to match FH theme
+## update legend of leaflet plot
+## fix title of app appearing in tab
+## include box at bottom of app
+## make Shiny app run when you call "oncarto" from the R console
+## fill out background
+
 # Call required libraries / packages
 library(pak)
 pak("getwilds/cancerprof@dev")
@@ -66,6 +77,21 @@ ui <- dashboardPage(
         menuItem(
           "Cancer Incidence by State",
           tabName = "state-incidence"
+        ),
+
+        menuItem(
+          "Cancer Incidence by County",
+          tabName = "county-incidence"
+        ),
+
+        menuItem(
+          "Cancer Incidence by HSA",
+          tabName = "hsa-incidence"
+        ),
+
+        menuItem(
+          "Background",
+          tabName = "background"
         )
       )
     ),
@@ -90,96 +116,109 @@ ui <- dashboardPage(
           $("header").find("nav").append(\'<span class="myClass"> Oncology Cartographer (Oncarto) </span>\');
       })')),
 
-      fluidRow(
-        box(
-          selectInput(
-            "cancer_type",
-            "Select Cancer Type:",
-            choices = c(
-              "all cancer sites" = "allsites",
-              "bladder",
-              "brain & ons" = "brain",
-              "colon & rectum" = "colon",
-              "esophagus",
-              "kidney & renal pelvis" = "kidney",
-              "leukemia",
-              "liver & bile duct" = "liver",
-              "lung & bronchus" = "lung",
-              "melanoma of the skin" = "melanoma",
-              "non-hodgkin lymphoma" = "lymphoma",
-              "oral cavity & pharynx" = "oral",
-              "pancreas",
-              "stomach",
-              "thyroid"
+      tabItems(
+        tabItem(
+          tabName = "state-incidence",
+          fluidRow(
+            box(
+              selectInput(
+                "cancer_type",
+                "Select Cancer Type:",
+                choices = c(
+                  "all cancer sites" = "allsites",
+                  "bladder",
+                  "brain & ons" = "brain",
+                  "colon & rectum" = "colon",
+                  "esophagus",
+                  "kidney & renal pelvis" = "kidney",
+                  "leukemia",
+                  "liver & bile duct" = "liver",
+                  "lung & bronchus" = "lung",
+                  "melanoma of the skin" = "melanoma",
+                  "non-hodgkin lymphoma" = "lymphoma",
+                  "oral cavity & pharynx" = "oral",
+                  "pancreas",
+                  "stomach",
+                  "thyroid"
+                ),
+                selected = "allsites"
+              ),
+
+              selectInput(
+                "race",
+                "Select Race:",
+                choices = c(
+                  "All Races (includes Hispanic)" = "allraces",
+                  "White (non-Hispanic)" = "white",
+                  "Black (non-Hispanic)" = "black",
+                  "American Indian / Alaska Native (non-Hispanic)" = "native",
+                  "Asian / Pacific Islander (non-Hispanic)" = "asian",
+                  "Hispanic (Any Race)" = "hisp"
+                ),
+                selected = "allraces"
+              ),
+
+              selectInput(
+                "sex",
+                "Select sex:",
+                choices = c(
+                  "both sexes" = "both",
+                  "males",
+                  "females"
+                ),
+                selected = "both"
+              )
             ),
-            selected = "allsites"
+            box(
+              selectInput(
+                "age",
+                "Select age range:",
+                choices = c(
+                  "all ages" = "all",
+                  "ages <50" = "<50",
+                  "ages 50+" = "50+",
+                  "ages <65" = "<65",
+                  "ages 65+" = "65+",
+                  "ages <15" = "15",
+                  "ages <20" = "20"
+                ),
+                selected = "all"
+              ),
+
+              selectInput(
+                "stage",
+                "Select cancer stage:",
+                choices = c(
+                  "all stages" = "allstages",
+                  "late stage (regional & distant)" = "latestage"
+                ),
+                selected = "allstages"
+              ),
+
+              selectInput(
+                "year",
+                "Select time span:",
+                choices = c(
+                  "latest 5 year average" = "5yr",
+                  "latest single year (us by state)" = "1yr"
+                ),
+                selected = "5yr"
+              )
+            )
           ),
 
-          selectInput(
-            "race",
-            "Select Race:",
-            choices = c(
-              "All Races (includes Hispanic)" = "allraces",
-              "White (non-Hispanic)" = "white",
-              "Black (non-Hispanic)" = "black",
-              "American Indian / Alaska Native (non-Hispanic)" = "native",
-              "Asian / Pacific Islander (non-Hispanic)" = "asian",
-              "Hispanic (Any Race)" = "hisp"
-            ),
-            selected = "allraces"
-          ),
-
-          selectInput(
-            "sex",
-            "Select sex:",
-            choices = c(
-              "both sexes" = "both",
-              "males",
-              "females"
-            ),
-            selected = "both"
+          fluidRow(
+            column(12, leafletOutput("choropleth"))
           )
         ),
-        box(
-          selectInput(
-            "age",
-            "Select age range:",
-            choices = c(
-              "all ages" = "all",
-              "ages <50" = "<50",
-              "ages 50+" = "50+",
-              "ages <65" = "<65",
-              "ages 65+" = "65+",
-              "ages <15" = "15",
-              "ages <20" = "20"
-            ),
-            selected = "all"
-          ),
 
-          selectInput(
-            "stage",
-            "Select cancer stage:",
-            choices = c(
-              "all stages" = "allstages",
-              "late stage (regional & distant)" = "latestage"
-            ),
-            selected = "allstages"
-          ),
+        tabItem(
+          tabName = "county-incidence"
+        ),
 
-          selectInput(
-            "year",
-            "Select time span:",
-            choices = c(
-              "latest 5 year average" = "5yr",
-              "latest single year (us by state)" = "1yr"
-            ),
-            selected = "5yr"
-          )
+        tabItem(
+          tabName = "county-incidence"
         )
-      ),
-
-      fluidRow(
-        column(12, leafletOutput("choropleth"))
       )
     )
 )
