@@ -19,6 +19,8 @@ library(dplyr)
 library(sf)
 library(leaflet)
 library(tigris)
+library(shinythemes)
+library(shinydashboard)
 
 # Source in data ingestion helper functions
 source("./helper_functions.R")
@@ -47,16 +49,49 @@ states_sf <- tigris::states(cb = TRUE) %>%
   st_as_sf()
 
 # Define UI
-ui <- fluidPage(
+ui <- dashboardPage(
+    dashboardHeader(
+      title = tags$a(
+        href='https://hutchdatascience.org',
+        tags$img(
+          src='fhLogo.png',
+          height='35px',
+          width='155px'
+        )
+      )
+    ),
 
-    # Application title
-    titlePanel("Cancer Incidence Data"),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem(
+          "Cancer Incidence by State",
+          tabName = "state-incidence"
+        )
+      )
+    ),
 
-    # Sidebar with a dropdown inputs
-    sidebarLayout(
-        sidebarPanel(
+    # Show the generated choropleth plot
+    dashboardBody(
+      includeCSS("www/hutch_theme.css"),
 
-          # Cancer Type
+      tags$head(tags$style(HTML(
+          '.myClass {
+          font-size: 20px;
+          line-height: 50px;
+          text-align: left;
+          font-family: "Arial",Helvetica,Arial,sans-serif;
+          padding: 0 15px;
+          overflow: hidden;
+          color: white;
+      }'))),
+
+      tags$script(HTML(
+        '$(document).ready(function() {
+          $("header").find("nav").append(\'<span class="myClass"> Oncology Cartographer (Oncarto) </span>\');
+      })')),
+
+      fluidRow(
+        box(
           selectInput(
             "cancer_type",
             "Select Cancer Type:",
@@ -103,8 +138,9 @@ ui <- fluidPage(
               "females"
             ),
             selected = "both"
-          ),
-
+          )
+        ),
+        box(
           selectInput(
             "age",
             "Select age range:",
@@ -139,12 +175,12 @@ ui <- fluidPage(
             ),
             selected = "5yr"
           )
-        ),
-
-        # Show the generated choropleth plot
-        mainPanel(
-           leafletOutput("choropleth")
         )
+      ),
+
+      fluidRow(
+        column(12, leafletOutput("choropleth"))
+      )
     )
 )
 
