@@ -8,10 +8,8 @@
 #
 
 ## TODO:
-## update select input titles and dropdowns for consistency
+## update select input dropdowns for consistency
 ## comment the code
-## change the colors of the leaflet plot to match FH theme
-## update legend of leaflet plot
 ## fix title of app appearing in tab
 ## make Shiny app run when you call "oncarto" from the R console
 ## fill out additional tabs / background
@@ -122,7 +120,7 @@ ui <- dashboardPage(
             box(
               selectInput(
                 "cancer_type",
-                "Select Cancer Type:",
+                "Select cancer subtype of interest:",
                 choices = c(
                   "all cancer sites" = "allsites",
                   "bladder",
@@ -145,7 +143,7 @@ ui <- dashboardPage(
 
               selectInput(
                 "race",
-                "Select Race:",
+                "Select population race/ethnicity:",
                 choices = c(
                   "All Races (includes Hispanic)" = "allraces",
                   "White (non-Hispanic)" = "white",
@@ -159,7 +157,7 @@ ui <- dashboardPage(
 
               selectInput(
                 "sex",
-                "Select sex:",
+                "Select population sex:",
                 choices = c(
                   "both sexes" = "both",
                   "males",
@@ -171,7 +169,7 @@ ui <- dashboardPage(
             box(
               selectInput(
                 "age",
-                "Select age range:",
+                "Select population age range:",
                 choices = c(
                   "all ages" = "all",
                   "ages <50" = "<50",
@@ -186,7 +184,7 @@ ui <- dashboardPage(
 
               selectInput(
                 "stage",
-                "Select cancer stage:",
+                "Select cancer stage of interest:",
                 choices = c(
                   "all stages" = "allstages",
                   "late stage (regional & distant)" = "latestage"
@@ -196,7 +194,7 @@ ui <- dashboardPage(
 
               selectInput(
                 "year",
-                "Select time span:",
+                "Select time span of interest:",
                 choices = c(
                   "latest 5 year average" = "5yr",
                   "latest single year (us by state)" = "1yr"
