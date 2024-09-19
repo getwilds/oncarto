@@ -16,7 +16,8 @@
 ## fix title of app appearing in tab
 ## include box at bottom of app
 ## make Shiny app run when you call "oncarto" from the R console
-## fill out background
+## fill out additional tabs / background
+## debug app updating?
 
 # Call required libraries / packages
 library(pak)
@@ -203,6 +204,16 @@ ui <- dashboardPage(
                   "latest single year (us by state)" = "1yr"
                 ),
                 selected = "5yr"
+              ),
+
+              actionButton(
+                inputId = "generateMap",
+                label = strong("Generate map")
+              ),
+
+              actionButton(
+                inputId = "reset",
+                label = strong("Clear map")
               )
             )
           ),
@@ -217,108 +228,125 @@ ui <- dashboardPage(
         ),
 
         tabItem(
-          tabName = "county-incidence"
+          tabName = "hsa-incidence"
+        ),
+
+        tabItem(
+          tabName = "background"
         )
       )
     )
 )
 
 # Define server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
 
-    # Generate a choropleth plot using {leaflet}
-    output$choropleth <- renderLeaflet({
-      chosen_cancer = input$cancer_type
-      race = input$race
-      sex = input$sex
-      age = input$age
-      stage = input$stage
-      year = input$year
+    observeEvent(input$generateMap, {
+      # Generate a choropleth plot using {leaflet}
+      output$choropleth <- renderLeaflet({
+        chosen_cancer = input$cancer_type
+        race = input$race
+        sex = input$sex
+        age = input$age
+        stage = input$stage
+        year = input$year
 
-      # Create a new DuckDB corresponding to incidence data from US states
-      con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+        # Create a new DuckDB corresponding to incidence data from US states
+        con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
 
-      ## 1. Ingest data from State Cancer Profiles if needed
-      # Iterate over each possible type of cancer
-      for (cancer in cancer_types) {
-        # For each cancer, get the name of the data file to be saved
-        table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
-        # If the data file is not already in the database...
-        if (table_name %in% dbListTables(con) == FALSE) {
-          # Then write the dataframe corresponding to the incidence data to the db
-          dbWriteTable(
-            con,
-            table_name,
-            get_incidence_df(cancer, race, sex, age, stage, year)
-          )
+        ## 1. Ingest data from State Cancer Profiles if needed
+        # Iterate over each possible type of cancer
+        for (cancer in cancer_types) {
+          # For each cancer, get the name of the data file to be saved
+          table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+          # If the data file is not already in the database...
+          if (table_name %in% dbListTables(con) == FALSE) {
+            # Then write the dataframe corresponding to the incidence data to the db
+            dbWriteTable(
+              con,
+              table_name,
+              get_incidence_df(cancer, race, sex, age, stage, year)
+            )
+          }
         }
-      }
 
-      ## 2. Munge relevant data from State Cancer Prof to wide format for viz
-      # Based on input parameters,
-      incidence_by_cancer_type = merge_all_incidence(
-        cancer_types,
-        race, sex, age, stage, year,
-        con
-      )
-
-      # Disconnect from the database
-      dbDisconnect(con)
-
-      ## 3. Visualize wide data using {leaflet}
-      # Make a new column called "NAME" in the incidence output data which includes
-      # the name of the state and excludes data contained in parentheses in the
-      # original {cancerprof} state name
-      incidence_by_cancer_type$NAME = gsub(
-        "\\s*\\([^\\)]+\\)",
-        "",
-        incidence_by_cancer_type$State
-      )
-
-      # Join the cancer data with state boundaries based on state name
-      incidence_by_type_with_shape <- states_sf %>%
-        left_join(incidence_by_cancer_type, by = "NAME")
-
-      # Generate color palette based on the selected cancer data
-      pal <- colorNumeric(
-        "Blues",
-        domain = incidence_by_type_with_shape[[chosen_cancer]],
-        na.color = "transparent"
-      )
-
-      # Create an interactive choropleth map using {leaflet}
-      leaflet(data = incidence_by_type_with_shape) %>%
-        addTiles() %>%
-        # set initial zoom to focus on center of United States
-        setView(lng = -98.583, lat = 39.828, zoom = 2) %>%
-        addPolygons(
-          fillColor = ~pal(incidence_by_type_with_shape[[chosen_cancer]]),
-          weight = 1,
-          opacity = 1,
-          color = "white",
-          dashArray = "3",
-          fillOpacity = 0.7,
-          highlightOptions = highlightOptions(
-            weight = 3,
-            color = "#666",
-            dashArray = "",
-            fillOpacity = 0.7,
-            bringToFront = TRUE
-          ),
-          label = ~paste(NAME, ": ", incidence_by_type_with_shape[[chosen_cancer]]),
-          labelOptions = labelOptions(
-            style = list("font-weight" = "normal", padding = "3px 8px"),
-            textsize = "15px",
-            direction = "auto"
-          )
-        ) %>%
-        addLegend(
-          pal = pal,
-          values = ~incidence_by_type_with_shape[[chosen_cancer]],
-          opacity = 0.7,
-          title = "Cancer Incidence",
-          position = "topright"
+        ## 2. Munge relevant data from State Cancer Prof to wide format for viz
+        # Based on input parameters,
+        incidence_by_cancer_type = merge_all_incidence(
+          cancer_types,
+          race, sex, age, stage, year,
+          con
         )
+
+        # Disconnect from the database
+        dbDisconnect(con)
+
+        ## 3. Visualize wide data using {leaflet}
+        # Make a new column called "NAME" in the incidence output data which includes
+        # the name of the state and excludes data contained in parentheses in the
+        # original {cancerprof} state name
+        incidence_by_cancer_type$NAME = gsub(
+          "\\s*\\([^\\)]+\\)",
+          "",
+          incidence_by_cancer_type$State
+        )
+
+        # Join the cancer data with state boundaries based on state name
+        incidence_by_type_with_shape <- states_sf %>%
+          left_join(incidence_by_cancer_type, by = "NAME")
+
+        # Generate color palette based on the selected cancer data
+        pal <- colorNumeric(
+          "Blues",
+          domain = incidence_by_type_with_shape[[chosen_cancer]],
+          na.color = "transparent"
+        )
+
+        # Create an interactive choropleth map using {leaflet}
+        leaflet(data = incidence_by_type_with_shape) %>%
+          addTiles() %>%
+          # set initial zoom to focus on center of United States
+          setView(lng = -98.583, lat = 39.828, zoom = 2) %>%
+          addPolygons(
+            fillColor = ~pal(incidence_by_type_with_shape[[chosen_cancer]]),
+            weight = 1,
+            opacity = 1,
+            color = "white",
+            dashArray = "3",
+            fillOpacity = 0.7,
+            highlightOptions = highlightOptions(
+              weight = 3,
+              color = "#666",
+              dashArray = "",
+              fillOpacity = 0.7,
+              bringToFront = TRUE
+            ),
+            label = ~paste(NAME, ": ", incidence_by_type_with_shape[[chosen_cancer]]),
+            labelOptions = labelOptions(
+              style = list("font-weight" = "normal", padding = "3px 8px"),
+              textsize = "15px",
+              direction = "auto"
+            )
+          ) %>%
+          addLegend(
+            pal = pal,
+            values = ~incidence_by_type_with_shape[[chosen_cancer]],
+            opacity = 0.7,
+            title = "Cancer Incidence",
+            position = "topright"
+          )
+      })
+    })
+
+    # Hitting the reset button will clear all values
+    observeEvent(input$reset, {
+      updateSelectInput(session,"cancer_type", selected = "allsites")
+      updateSelectInput(session,"race", selected = "allraces")
+      updateSelectInput(session,"sex", selected = "both")
+      updateSelectInput(session,"age", selected = "all")
+      updateSelectInput(session,"stage", selected = "allstages")
+      updateSelectInput(session,"year", selected = "5yr")
+      output$choropleth <- renderLeaflet({})
     })
 }
 
