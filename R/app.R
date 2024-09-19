@@ -8,7 +8,6 @@
 #
 
 ## TODO:
-## update select input dropdowns for consistency
 ## comment the code
 ## fix title of app appearing in tab
 ## make Shiny app run when you call "oncarto" from the R console
@@ -122,21 +121,21 @@ ui <- dashboardPage(
                 "cancer_type",
                 "Select cancer subtype of interest:",
                 choices = c(
-                  "all cancer sites" = "allsites",
-                  "bladder",
-                  "brain & ons" = "brain",
-                  "colon & rectum" = "colon",
-                  "esophagus",
-                  "kidney & renal pelvis" = "kidney",
-                  "leukemia",
-                  "liver & bile duct" = "liver",
-                  "lung & bronchus" = "lung",
-                  "melanoma of the skin" = "melanoma",
-                  "non-hodgkin lymphoma" = "lymphoma",
-                  "oral cavity & pharynx" = "oral",
-                  "pancreas",
-                  "stomach",
-                  "thyroid"
+                  "All subtypes" = "allsites",
+                  "Bladder" = "bladder",
+                  "Brain and other nervous system" = "brain",
+                  "Colon and rectum" = "colon",
+                  "Esophagus" = "esophagus",
+                  "Kidney and renal pelvis" = "kidney",
+                  "Leukemia" = "leukemia",
+                  "Liver & bile duct" = "liver",
+                  "Lung and bronchus" = "lung",
+                  "Melanoma of the skin" = "melanoma",
+                  "Non-hodgkin lymphoma" = "lymphoma",
+                  "Oral cavity and pharynx" = "oral",
+                  "Pancreas" = "pancreas",
+                  "Stomach" = "stomach",
+                  "Thyroid" = "thyroid"
                 ),
                 selected = "allsites"
               ),
@@ -145,7 +144,7 @@ ui <- dashboardPage(
                 "race",
                 "Select population race/ethnicity:",
                 choices = c(
-                  "All Races (includes Hispanic)" = "allraces",
+                  "All races/ethnicities (includes Hispanic)" = "allraces",
                   "White (non-Hispanic)" = "white",
                   "Black (non-Hispanic)" = "black",
                   "American Indian / Alaska Native (non-Hispanic)" = "native",
@@ -159,9 +158,9 @@ ui <- dashboardPage(
                 "sex",
                 "Select population sex:",
                 choices = c(
-                  "both sexes" = "both",
-                  "males",
-                  "females"
+                  "Any sex" = "both",
+                  "Male" = "males",
+                  "Female" = "females"
                 ),
                 selected = "both"
               )
@@ -171,13 +170,13 @@ ui <- dashboardPage(
                 "age",
                 "Select population age range:",
                 choices = c(
-                  "all ages" = "all",
-                  "ages <50" = "<50",
-                  "ages 50+" = "50+",
-                  "ages <65" = "<65",
-                  "ages 65+" = "65+",
-                  "ages <15" = "15",
-                  "ages <20" = "20"
+                  "All ages" = "all",
+                  "Ages <50" = "<50",
+                  "Ages 50+" = "50+",
+                  "Ages <65" = "<65",
+                  "Ages 65+" = "65+",
+                  "Ages <15" = "15",
+                  "Ages <20" = "20"
                 ),
                 selected = "all"
               ),
@@ -186,8 +185,8 @@ ui <- dashboardPage(
                 "stage",
                 "Select cancer stage of interest:",
                 choices = c(
-                  "all stages" = "allstages",
-                  "late stage (regional & distant)" = "latestage"
+                  "All stages" = "allstages",
+                  "Late stage (regional & distant)" = "latestage"
                 ),
                 selected = "allstages"
               ),
@@ -196,8 +195,8 @@ ui <- dashboardPage(
                 "year",
                 "Select time span of interest:",
                 choices = c(
-                  "latest 5 year average" = "5yr",
-                  "latest single year (us by state)" = "1yr"
+                  "Latest 5 year average" = "5yr",
+                  "Latest single year" = "1yr"
                 ),
                 selected = "5yr"
               ),
