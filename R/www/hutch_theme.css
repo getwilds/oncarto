@@ -1,0 +1,64 @@
+/* logo */
+.skin-blue .main-header .logo {
+    background-color: #F4F4F4;    /*light-gray*/
+    color: #0A799A;
+}
+
+/* logo when hovered */
+.skin-blue .main-header .logo:hover {
+    background-color: #FFFFFF;    /*white*/
+}
+                          
+/* navbar (rest of the header) */
+.skin-blue .main-header .navbar {
+    background-color: #1B365D;
+}
+
+/* main sidebar */
+.skin-blue .main-sidebar {
+    background-color: #1B365D;
+    font-family: 'Arial', sans-serif;
+}
+
+/* main body */
+.skin-blue .main-sidebar .{
+    background-color: #0A799A;
+    font-family: Times, "Times New Roman", Georgia, serif;
+}
+
+/* active selected tab in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+    background-color: #00ABC8;     /*bright blue*/
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* other links in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a{
+    background-color: #0A799A;    /*teal*/
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* other links in the sidebarmenu when hovered */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+    background-color: #F4F4F4;
+    color: #00ABC8;
+    font-weight: bold;
+}
+
+/* toggle button color  */
+.skin-blue .main-header .navbar .sidebar-toggle{
+     background-color: #1B365D;
+     color:#00ABC8;
+}
+
+/* toggle button when hovered  */
+.skin-blue .main-header .navbar .sidebar-toggle:hover{
+    background-color: #00ABC8;
+    color:#1B365D;
+}
+
+body, h2, .main-header .logo {
+  font-family: 'Arial', sans-serif;
+}

@@ -195,7 +195,7 @@ cancer_types = c(
 
 ```{r}
 cancerprof::incidence_cancer(
-      "USA", "state",
+      "WA", "hsa",
       "all cancer sites",
       "All Races (includes Hispanic)",
       "males",
