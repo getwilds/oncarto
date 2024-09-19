@@ -9,15 +9,13 @@
 
 ## TODO:
 ## update select input titles and dropdowns for consistency
-## include a "generate" and "clear" button to make and delete the maps
 ## comment the code
 ## change the colors of the leaflet plot to match FH theme
 ## update legend of leaflet plot
 ## fix title of app appearing in tab
-## include box at bottom of app
 ## make Shiny app run when you call "oncarto" from the R console
 ## fill out additional tabs / background
-## tie "render leaflet" to just the generate button (don't automatically update w input)
+## confirm that presented data are correctly updating
 
 # Call required libraries / packages
 library(pak)
@@ -329,7 +327,7 @@ server <- function(input, output, session) {
       output$choropleth <- renderLeaflet({
         # Generate color palette based on the selected cancer data
         pal <- colorNumeric(
-          "Blues",
+          c("#F4F4F4", "#FFB500"),
           domain = incidence_by_type_with_shape[[chosen_cancer]],
           na.color = "transparent"
         )
@@ -364,7 +362,7 @@ server <- function(input, output, session) {
             pal = pal,
             values = ~incidence_by_type_with_shape[[chosen_cancer]],
             opacity = 0.7,
-            title = "Cancer Incidence",
+            title = "Age-Adjusted Cancer Incidence",
             position = "topright"
           )
       })
