@@ -10,6 +10,7 @@
 ## TODO:
 ## make Shiny app run when you call "oncarto" from the R console
 ## fill out additional tabs / background
+## for certain cancer types, stage must be all stages
 
 # Call required libraries / packages
 library(pak)
@@ -124,48 +125,48 @@ ui <- dashboardPage(
                 "cancer_type",
                 "Select cancer subtype of interest:",
                 choices = c(
-                  "All subtypes" = "allsites",
+                  "All subtypes" = "all cancer sites",
                   "Bladder" = "bladder",
-                  "Brain and other nervous system" = "brain",
-                  "Colon and rectum" = "colon",
+                  "Brain and other nervous system" = "brain & ons",
+                  "Colon and rectum" = "colon & rectum",
                   "Esophagus" = "esophagus",
-                  "Kidney and renal pelvis" = "kidney",
+                  "Kidney and renal pelvis" = "kidney & renal pelvis",
                   "Leukemia" = "leukemia",
-                  "Liver & bile duct" = "liver",
-                  "Lung and bronchus" = "lung",
-                  "Melanoma of the skin" = "melanoma",
-                  "Non-hodgkin lymphoma" = "lymphoma",
-                  "Oral cavity and pharynx" = "oral",
+                  "Liver & bile duct" = "liver & bile duct",
+                  "Lung and bronchus" = "lung & bronchus",
+                  "Melanoma of the skin" = "melanoma of the skin",
+                  "Non-hodgkin lymphoma" = "non-hodgkin lymphoma",
+                  "Oral cavity and pharynx" = "oral cavity & pharynx",
                   "Pancreas" = "pancreas",
                   "Stomach" = "stomach",
                   "Thyroid" = "thyroid"
                 ),
-                selected = "allsites"
+                selected = "all cancer sites"
               ),
 
               selectInput(
                 "race",
                 "Select population race/ethnicity:",
                 choices = c(
-                  "All races/ethnicities (includes Hispanic)" = "allraces",
-                  "White (non-Hispanic)" = "white",
-                  "Black (non-Hispanic)" = "black",
-                  "American Indian / Alaska Native (non-Hispanic)" = "native",
-                  "Asian / Pacific Islander (non-Hispanic)" = "asian",
-                  "Hispanic (Any Race)" = "hisp"
+                  "All races/ethnicities (including Hispanic)" = "All Races (includes Hispanic)",
+                  "White (non-Hispanic)",
+                  "Black (non-Hispanic)",
+                  "American Indian / Alaska Native (non-Hispanic)",
+                  "Asian / Pacific Islander (non-Hispanic)",
+                  "Hispanic (Any Race)"
                 ),
-                selected = "allraces"
+                selected = "All Races (includes Hispanic)"
               ),
 
               selectInput(
                 "sex",
                 "Select population sex:",
                 choices = c(
-                  "Any sex" = "both",
+                  "Any sex" = "both sexes",
                   "Male" = "males",
                   "Female" = "females"
                 ),
-                selected = "both"
+                selected = "both sexes"
               )
             ),
             box(
@@ -173,35 +174,35 @@ ui <- dashboardPage(
                 "age",
                 "Select population age range:",
                 choices = c(
-                  "All ages" = "all",
-                  "Ages <50" = "<50",
-                  "Ages 50+" = "50+",
-                  "Ages <65" = "<65",
-                  "Ages 65+" = "65+",
-                  "Ages <15" = "15",
-                  "Ages <20" = "20"
+                  "All ages" = "all ages",
+                  "Ages <50" = "ages <50",
+                  "Ages 50+" = "ages 50+",
+                  "Ages <65" = "ages <65",
+                  "Ages 65+" = "ages 65+",
+                  "Ages <15" = "ages <15",
+                  "Ages <20" = "ages <20"
                 ),
-                selected = "all"
+                selected = "all ages"
               ),
 
               selectInput(
                 "stage",
                 "Select cancer stage of interest:",
                 choices = c(
-                  "All stages" = "allstages",
-                  "Late stage (regional & distant)" = "latestage"
+                  "All stages" = "all stages",
+                  "Late stage (regional & distant)" = "late stage (regional & distant)"
                 ),
-                selected = "allstages"
+                selected = "all stages"
               ),
 
               selectInput(
                 "year",
                 "Select time span of interest:",
                 choices = c(
-                  "Latest 5 year average" = "5yr",
-                  "Latest single year" = "1yr"
+                  "Latest 5 year average" = "latest 5 year average",
+                  "Latest single year" = "latest single year (us by state)"
                 ),
-                selected = "5yr"
+                selected = "latest 5 year average"
               ),
 
               actionButton(
@@ -327,7 +328,7 @@ server <- function(input, output, session) {
 
       # Join the cancer data with state boundaries based on state name
       incidence_by_type_with_shape <- states_sf %>%
-        left_join(incidence_by_cancer_type, by = "NAME")
+        inner_join(incidence_by_cancer_type, by = "NAME")
 
       # Generate a choropleth plot using {leaflet}
       output$choropleth <- renderLeaflet({
@@ -376,12 +377,12 @@ server <- function(input, output, session) {
 
     # Hitting the reset button will reset all values and clear the map
     observeEvent(input$reset, {
-      updateSelectInput(session,"cancer_type", selected = "allsites")
-      updateSelectInput(session,"race", selected = "allraces")
-      updateSelectInput(session,"sex", selected = "both")
-      updateSelectInput(session,"age", selected = "all")
-      updateSelectInput(session,"stage", selected = "allstages")
-      updateSelectInput(session,"year", selected = "5yr")
+      updateSelectInput(session,"cancer_type", selected = "all cancer sites")
+      updateSelectInput(session,"race", selected = "All Races (includes Hispanic)")
+      updateSelectInput(session,"sex", selected = "both sexes")
+      updateSelectInput(session,"age", selected = "all ages")
+      updateSelectInput(session,"stage", selected = "all stages")
+      updateSelectInput(session,"year", selected = "latest 5 year average")
       output$choropleth <- renderLeaflet({})
     })
 }

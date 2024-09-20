@@ -88,12 +88,12 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
   }
 
   ## both sexes = both
-  ## male = male
-  ## female = female
+  ## males = male
+  ## females = female
   sx_name = "bothsexes" # both sexes
-  if (sex == "male") {
+  if (sex == "males") {
     sx_name = "male"
-  } else if (sex == "female") {
+  } else if (sex == "females") {
     sx_name = "female"
   }
 
@@ -133,7 +133,8 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
     y_name = "1yr"
   }
 
-  out = paste0("usa_state_", c_name, "_", r_name, "_", sx_name, "_", a_name, "_", st_name, "_", y_name)
+  #out = paste0("usa_state_", c_name, "_", r_name, "_", sx_name, "_", a_name, "_", st_name, "_", y_name)
+  out = paste0("usa_state_", cancer, "_", race, "_", sex, "_", age, "_", stage, "_", year)
   return(out)
 }
 
