@@ -193,16 +193,19 @@ cancer_types = c(
 )
 ```
 
+Test code
 ```{r}
-cancerprof::incidence_cancer(
-      "WA", "hsa",
-      "all cancer sites",
+test_data = cancerprof::incidence_cancer(
+      "USA", "state",
+      "bladder",
       "All Races (includes Hispanic)",
-      "males",
+      "both sexes",
       "all ages",
       "all stages",
       "latest 5 year average"
     )
+
+test_data
 ```
 
 ```{r}
