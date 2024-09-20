@@ -10,7 +10,6 @@
 ## TODO:
 ## make Shiny app run when you call "oncarto" from the R console
 ## fill out additional tabs / background
-## confirm that presented data are correctly updating
 
 # Call required libraries / packages
 library(pak)
