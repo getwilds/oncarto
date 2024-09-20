@@ -8,8 +8,6 @@
 #
 
 ## TODO:
-## comment the code
-## fix title of app appearing in tab
 ## make Shiny app run when you call "oncarto" from the R console
 ## fill out additional tabs / background
 ## confirm that presented data are correctly updating
@@ -58,6 +56,7 @@ states_sf <- tigris::states(cb = TRUE) %>%
 # Define UI
 ui <- dashboardPage(
     dashboardHeader(
+      # FH logo that links to DaSL website
       title = tags$a(
         href='https://hutchdatascience.org',
         tags$img(
@@ -70,6 +69,7 @@ ui <- dashboardPage(
 
     dashboardSidebar(
       sidebarMenu(
+        # Multiple tabs, each correspond to a different type of map / info
         menuItem(
           "Cancer Incidence by State",
           tabName = "state-incidence"
@@ -92,8 +92,9 @@ ui <- dashboardPage(
       )
     ),
 
-    # Show the generated choropleth plot
+    # Main body of the app
     dashboardBody(
+      # Include proper styling
       includeCSS("www/hutch_theme.css"),
 
       tags$head(tags$style(HTML(
@@ -107,6 +108,7 @@ ui <- dashboardPage(
           color: white;
       }'))),
 
+      # Specify app title: Oncology Cartographer
       tags$script(HTML(
         '$(document).ready(function() {
           $("header").find("nav").append(\'<span class="myClass"> Oncology Cartographer (Oncarto) </span>\');
@@ -114,9 +116,11 @@ ui <- dashboardPage(
 
       tabItems(
         tabItem(
+          # State incidence tab
           tabName = "state-incidence",
           fluidRow(
             box(
+              # Include input options as well as map generation and reset buttons
               selectInput(
                 "cancer_type",
                 "Select cancer subtype of interest:",
@@ -213,6 +217,7 @@ ui <- dashboardPage(
             )
           ),
 
+          # Show choropleth map
           fluidRow(
             column(
               12,
@@ -222,6 +227,7 @@ ui <- dashboardPage(
               )
             ),
 
+          # Show contact info
           fluidRow(
             column(
               12,
@@ -233,6 +239,7 @@ ui <- dashboardPage(
           )
         ),
 
+        # Tabs for other levels of maps - TO BE DONE
         tabItem(
           tabName = "county-incidence"
         ),
@@ -241,6 +248,7 @@ ui <- dashboardPage(
           tabName = "hsa-incidence"
         ),
 
+        # Tab for background info - TO BE DONE
         tabItem(
           tabName = "background"
         )
@@ -250,10 +258,10 @@ ui <- dashboardPage(
 
 # Define server logic
 server <- function(input, output, session) {
+    # Output text that clarifies contact info for the app
     daslWebsite <- a("Data Science Lab (DaSL).", href="https://hutchdatascience.org")
     daslTA <- a("Translational Analytics", href="https://hutchdatascience.org/tr-analytics/")
     daslEmail <- a("analytics@fredhutch.org.", href="mailto:analytics@fredhutch.org")
-
     output$contactInfo <- renderUI({
       HTML(
         paste(
@@ -268,7 +276,9 @@ server <- function(input, output, session) {
       )
     })
 
+    # If the user clicks the "generate map" button...
     observeEvent(input$generateMap, {
+      # Then we collect the inputs
       chosen_cancer = input$cancer_type
       race = input$race
       sex = input$sex
@@ -276,7 +286,7 @@ server <- function(input, output, session) {
       stage = input$stage
       year = input$year
 
-      # Create a new DuckDB corresponding to incidence data from US states
+      # Create a new DuckDB corresponding to cancer incidence data for this tab
       con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
 
       ## 1. Ingest data from State Cancer Profiles if needed
@@ -322,7 +332,7 @@ server <- function(input, output, session) {
 
       # Generate a choropleth plot using {leaflet}
       output$choropleth <- renderLeaflet({
-        # Generate color palette based on the selected cancer data
+        # Generate color palette based on the selected cancer data (FH yellow)
         pal <- colorNumeric(
           c("#F4F4F4", "#FFB500"),
           domain = incidence_by_type_with_shape[[chosen_cancer]],
@@ -365,7 +375,7 @@ server <- function(input, output, session) {
       })
     })
 
-    # Hitting the reset button will clear all values
+    # Hitting the reset button will reset all values and clear the map
     observeEvent(input$reset, {
       updateSelectInput(session,"cancer_type", selected = "allsites")
       updateSelectInput(session,"race", selected = "allraces")
@@ -378,4 +388,7 @@ server <- function(input, output, session) {
 }
 
 # Run the application
-shinyApp(ui = ui, server = server)
+shinyApp(
+  ui = ui,
+  server = server
+)
