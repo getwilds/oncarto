@@ -37,4 +37,15 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports:
-    shiny
+    DBI,
+    dbplyr,
+    dplyr,
+    duckdb,
+    duckplyr,
+    leaflet,
+    pak,
+    sf,
+    shiny,
+    shinydashboard,
+    shinythemes,
+    tigris
