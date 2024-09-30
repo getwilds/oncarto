@@ -1,5 +1,7 @@
 # Source in data ingestion helper functions
 source("./helper_functions.R")
+library(pak)
+pak("RPostgres")
 
 # Define the options for cancer types that can be viewed in the app
 cancer_types = c(
@@ -56,12 +58,11 @@ db_user <- Sys.getenv("DB_USER")
 db_password <- Sys.getenv("DB_PASSWORD")
 db_port <- Sys.getenv("DB_PORT")
 
-# Example of connecting to a database using R's DBI package
 con <- DBI::dbConnect(
   RPostgres::Postgres(),
+  dbname = db_name,
   user = db_user,
   password = db_password,
-  host = db_host,
-  dbname = db_name
+  host = db_host
 )
 
