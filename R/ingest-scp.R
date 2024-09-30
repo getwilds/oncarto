@@ -50,3 +50,18 @@ year_options = c(
   "latest single year (us by state)"
 )
 
+db_host <- Sys.getenv("DB_HOST")
+db_name <- Sys.getenv("DB_NAME")
+db_user <- Sys.getenv("DB_USER")
+db_password <- Sys.getenv("DB_PASSWORD")
+db_port <- Sys.getenv("DB_PORT")
+
+# Example of connecting to a database using R's DBI package
+con <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  user = db_user,
+  password = db_password,
+  host = db_host,
+  dbname = db_name
+)
+
