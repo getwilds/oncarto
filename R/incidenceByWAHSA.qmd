@@ -6,7 +6,7 @@ editor: visual
 
 ```{r}
 library(pak)
-pak("getwilds/cancerprof@dev")
+pak("getwilds/cancerprof@fix-incidence")
 pak("duckdb")
 pak("duckplyr")
 pak("DBI")
@@ -194,6 +194,21 @@ cancer_types = c(
 ```
 
 Test code
+
+```{r}
+cancerprof::incidence_cancer(
+  area = "wa",
+  areatype = "county",
+  cancer = "all cancer sites",
+  race = "black (non-hispanic)",
+  sex = "both sexes",
+  age = "ages 65+",
+  stage = "all stages",
+  year = "latest 5 year average"
+)
+```
+
+
 ```{r}
 test_data = cancerprof::incidence_cancer(
       "USA", "state",
