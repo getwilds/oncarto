@@ -133,7 +133,7 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
     y_name = "1yr"
   }
 
-  out = paste0("usa_state_", c_name, "_", r_name, "_", sx_name, "_", a_name, "_", st_name, "_", y_name)
+  out = paste0("wa_county", c_name, "_", r_name, "_", sx_name, "_", a_name, "_", st_name, "_", y_name)
   return(out)
 }
 
@@ -171,7 +171,7 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
 get_incidence_df <- function(cancer, race, sex, age, stage, year){
   out = as.data.frame(
     cancerprof::incidence_cancer(
-      "USA", "state",
+      "wa", "count",
       cancer,
       race,
       sex,
