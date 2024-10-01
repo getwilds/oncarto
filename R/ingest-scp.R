@@ -8,6 +8,11 @@ cancer_types = c(
   "all cancer sites",
   "bladder",
   "brain & ons",
+  "breast (female)",
+  "breast (female in situ)",
+  "cervix",
+  "childhood (ages <15, all sites)",
+  "childhood (ages <20, all sites)",
   "colon & rectum",
   "esophagus",
   "kidney & renal pelvis",
@@ -17,9 +22,12 @@ cancer_types = c(
   "melanoma of the skin",
   "non-hodgkin lymphoma",
   "oral cavity & pharynx",
+  "ovary",
   "pancreas",
+  "prostate",
   "stomach",
-  "thyroid"
+  "thyroid",
+  "uterus (corpus & uterus, nos)"
 )
 
 race_options = c(
@@ -39,6 +47,8 @@ sex_options = c(
 
 age_options = c(
   "all ages",
+  "ages <15",
+  "ages <20",
   "ages <50",
   "ages 50+",
   "ages <65",
