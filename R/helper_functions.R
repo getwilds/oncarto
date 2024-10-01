@@ -1,3 +1,5 @@
+library(dplyr)
+
 #' get_incidence_db_name: Get the right name for the data file to be saved
 #'
 #' @description
@@ -168,18 +170,39 @@ get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
 #'
 #'
 
-get_incidence_df <- function(cancer, race, sex, age, stage, year){
+get_incidence_df <- function(chosen_cancer, chosen_race, chosen_sex, chosen_age, chosen_year){
   out = as.data.frame(
     cancerprof::incidence_cancer(
-      "wa", "count",
-      cancer,
-      race,
-      sex,
-      age,
-      stage,
-      year
+      "wa", "county",
+      chosen_cancer,
+      chosen_race,
+      chosen_sex,
+      chosen_age,
+      "all stages",
+      chosen_year
     )
+  ) %>%
+  select(
+    County,
+    Age_Adjusted_Incidence_Rate
   )
+
+  out <- out %>%
+    mutate(
+      cancer_type = replicate(nrow(out), chosen_cancer)
+    ) %>%
+    mutate(
+      race = replicate(nrow(out), chosen_race)
+    ) %>%
+    mutate(
+      sex = replicate(nrow(out), chosen_sex)
+    ) %>%
+    mutate(
+      age = replicate(nrow(out), chosen_age)
+    ) %>%
+    mutate(
+      year = replicate(nrow(out), chosen_year)
+    )
 
   return(out)
 }
