@@ -21,26 +21,7 @@ library(leaflet)
 library(tigris)
 library(shinycssloaders)
 
-
-# Define the options for cancer types that can be viewed in the app
-cancer_types = c(
-  "all cancer sites",
-  "bladder",
-  "brain & ons",
-  "colon & rectum",
-  "esophagus",
-  "kidney & renal pelvis",
-  "leukemia",
-  "liver & bile duct",
-  "lung & bronchus",
-  "melanoma of the skin",
-  "non-hodgkin lymphoma",
-  "oral cavity & pharynx",
-  "pancreas",
-  "stomach",
-  "thyroid"
-)
-
+# Get data that have been previously ingested from SCP
 db_host <- Sys.getenv("DB_HOST")
 db_name <- Sys.getenv("DB_NAME")
 db_user <- Sys.getenv("DB_USER")
@@ -186,6 +167,7 @@ server <- function(input, output) {
     # Generate a choropleth plot using {leaflet}
     output$choropleth <- renderLeaflet({
 
+      # Get the county-level incidence data related to our desired input
       county_level_incidence <- incidence_data %>%
         filter(cancer_type == input$cancer_type) %>%
         filter(race == input$race) %>%
@@ -195,13 +177,17 @@ server <- function(input, output) {
         filter(year == input$year) %>%
         mutate(NAMELSAD = County)
 
+      # If data do not exist for this combination of inputs, print a warning message
       if(all(is.na(county_level_incidence$Age_Adjusted_Incidence_Rate))){
         output$map_message <- renderUI({
           HTML("<h4>No cancer incidence data are available for this specific combination of inputs. Please try a different combination of inputs.</h4>")
         })
 
         return(NULL)
-      } else {
+      }
+
+      # Otherwise, we can print our map
+      else {
         output$map_message <- renderUI({
           NULL
         })
@@ -209,8 +195,6 @@ server <- function(input, output) {
         # Join the cancer data with counties boundaries based on county name
         county_level_incidence_with_shape <- wa_counties_sf %>%
           left_join(county_level_incidence, by = "NAMELSAD")
-
-        print(head(county_level_incidence_with_shape))
 
         # Generate color palette based on the selected cancer data
         pal <- colorNumeric(
@@ -251,7 +235,6 @@ server <- function(input, output) {
             position = "topright"
           )
       }
-
     })
 }
 
