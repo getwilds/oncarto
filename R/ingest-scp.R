@@ -14,6 +14,7 @@ pak("dplyr")
 #' @param race The race of the population (character)
 #' @param sex The sex of the population (character)
 #' @param age The age group of the population (character)
+#' @param stage The stage of the cancer (character)
 #' @param year The desired timespan for the data (character)
 #'
 #' @return
@@ -25,17 +26,19 @@ pak("dplyr")
 #'    race_options,
 #'    sex_options,
 #'    age_options,
+#'    stage_options
 #'    year_options
 #' )
 #'
 
-get_input_combinations <- function(cancer_types, race_options, sex_options, age_options, year_options){
+get_input_combinations <- function(cancer_types, race_options, sex_options, age_options, stage_options, year_options){
   out <- expand.grid(
     list(
       cancer_type = cancer_types,
       race = race_options,
       sex = sex_options,
       age = age_options,
+      stage = stage_options,
       timespan = year_options
     ),
     stringsAsFactors = FALSE
@@ -76,7 +79,7 @@ get_input_combinations <- function(cancer_types, race_options, sex_options, age_
 #'
 #'
 
-get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, chosen_age, chosen_year){
+get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, chosen_age, chosen_stage, chosen_year){
   out = as.data.frame(
     cancerprof::incidence_cancer(
       state, "county",
@@ -84,7 +87,7 @@ get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, ch
       chosen_race,
       chosen_sex,
       chosen_age,
-      "all stages",
+      chosen_stage,
       chosen_year
     )
   ) %>%
@@ -106,6 +109,9 @@ get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, ch
     mutate(
       age = replicate(nrow(out), chosen_age)
     ) %>%
+    mutate(
+      stage = replicate(nrow(out), chosen_stage)
+    )%>%
     mutate(
       year = replicate(nrow(out), chosen_year)
     )
@@ -145,12 +151,13 @@ process_row <- function(state, row) {
   current_race <- as.character(row["race"])
   current_sex <- as.character(row["sex"])
   current_age <- as.character(row["age"])
+  current_stage <- as.character(row["stage"])
   current_timespan <- as.character(row["timespan"])
 
   print(
     paste(
       "Processing:",
-      current_cancer, current_race, current_sex, current_age, current_timespan
+      current_cancer, current_race, current_sex, current_age, current_stage, current_timespan
     )
   )
 
@@ -161,13 +168,15 @@ process_row <- function(state, row) {
       current_race,
       current_sex,
       current_age,
+      current_stage,
       current_timespan
     )
   }, error = function(e) {
     # More detailed error message
     message(paste("Error in row with cancer type:", current_cancer,
                   "race:", current_race, "sex:", current_sex,
-                  "age:", current_age, "timespan:", current_timespan,
+                  "age:", current_age, "stage:", current_stage,
+                  "timespan:", current_timespan,
                   " - Error message:", e$message))
     return(NULL)  # Return NULL in case of error
   })
@@ -289,9 +298,9 @@ write_to_db <- function(df, df_name) {
 #' )
 #'
 
-ingest_scp_incidence <- function(state, cancer_types, race_options, sex_options, age_options, year_options) {
+ingest_scp_incidence <- function(state, cancer_types, race_options, sex_options, age_options, stage_options, year_options) {
   all_inputs = get_input_combinations(
-    cancer_types, race_options, sex_options, age_options, year_options
+    cancer_types, race_options, sex_options, age_options, stage_options, year_options
   )
 
   out = get_incidence_for_all_inputs(
@@ -359,6 +368,11 @@ age_options = c(
   "ages 65+"
 )
 
+stage_options = c(
+  "all stages",
+  "late stage (regional & distant)"
+)
+
 year_options = c(
   "latest 5 year average"
 )
@@ -369,7 +383,13 @@ out = ingest_scp_incidence(
   race_options,
   sex_options,
   age_options,
+  stage_options,
   year_options
 )
 
 head(out)
+
+write_to_db(
+  out,
+  paste0("wa", "_county_incidence")
+)
