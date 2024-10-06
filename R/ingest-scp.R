@@ -1,4 +1,3 @@
-# Source in data ingestion helper functions
 library(pak)
 pak("RPostgres")
 pak("dplyr")
@@ -8,7 +7,8 @@ pak("dplyr")
 #'
 #' @description
 #' Based on the individual options for all of the input variables, generate
-#' all combinations of cancer type, race, sex, age, and year.
+#' all combinations of cancer type, race, sex, age, and year and save them into
+#' a dataframe
 #'
 #' @param cancer The type of cancer (character)
 #' @param race The race of the population (character)
@@ -18,7 +18,7 @@ pak("dplyr")
 #' @param year The desired timespan for the data (character)
 #'
 #' @return
-#' A dataframe of all possible combinations of input variables
+#' A dataframe of all possible combinations of values of the input variables
 #'
 #' @examples
 #' get_input_combinations(
@@ -51,7 +51,7 @@ get_input_combinations <- function(cancer_types, race_options, sex_options, age_
 #' get_incidence_data: Pull cancer incidence data by county for a given set of inputs
 #'
 #' @description
-#' Based on the user-specified values of state, cancer, race, sex, age, stage, and
+#' Based on user-specified values of cancer, race, sex, age, stage, and
 #' year, collect cancer incidence data by county for the state of interest
 #'
 #' @param state The US state of interest (character)
@@ -63,7 +63,7 @@ get_input_combinations <- function(cancer_types, race_options, sex_options, age_
 #' @param year The desired timespan for the data (character)
 #'
 #' @return
-#' A dataframe of age-adjusted cancer incidence rates by county for this
+#' A dataframe of age-adjusted cancer incidence rates by county for the input
 #' combination of parameters
 #'
 #' @examples
@@ -91,10 +91,10 @@ get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, ch
       chosen_year
     )
   ) %>%
-    select(
-      County,
-      Age_Adjusted_Incidence_Rate
-    )
+  select(
+    County,
+    Age_Adjusted_Incidence_Rate
+  )
 
   out <- out %>%
     mutate(
@@ -124,20 +124,14 @@ get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, ch
 #'
 #' @description
 #' Based on a row including a single combination of inputs in the input_combinations df,
-#' get corresponding cancer incidence for the state by county
-#' the user-specified parameters of cancer, race, sex, age, stage, and
-#' year, collect cancer incidence data by WA county
+#' get corresponding cancer incidence for the state by county. If the {cancerprof}
+#' API returns a warning, return NULL and print out the warning.
 #'
 #' @param state The state of interest
 #' @param row The current row of the input_combinations df
-#' @param sex The sex of the population (character)
-#' @param age The age group of the population (character)
-#' @param stage The stage of the cancer (character)
-#' @param year The desired timespan for the data (character)
 #'
 #' @return
-#' The output cancer incidence dataframe to be saved to duckdb for this
-#' combination of parameters
+#' The output county-level cancer incidence dataframe for this combination of parameters
 #'
 #' @examples
 #' process_row(
@@ -157,7 +151,8 @@ process_row <- function(state, row) {
   print(
     paste(
       "Processing:",
-      current_cancer, current_race, current_sex, current_age, current_stage, current_timespan
+      current_cancer, current_race, current_sex,
+      current_age, current_stage, current_timespan
     )
   )
 
@@ -273,9 +268,11 @@ write_to_db <- function(df, df_name) {
 #' ingest_scp_incidence: Ingest SCP data by county for all possible inputs
 #'
 #' @description
-#' Collect state cancer incidence data for all combinations of cancer types,
-#' race, sex, age, stage, and year
+#' Collect state cancer profiles (SCP) county-level incidence data for all
+#' combinations of cancer types, race, sex, age, stage, and year. Save this data
+#' into the appropriate database
 #'
+#' @param state The state of interest (character)
 #' @param cancer The type of cancer (character)
 #' @param race The race of the population (character)
 #' @param sex The sex of the population (character)
@@ -294,6 +291,7 @@ write_to_db <- function(df, df_name) {
 #'    race_options,
 #'    sex_options,
 #'    age_options,
+#'    stage_options
 #'    year_options
 #' )
 #'
@@ -307,14 +305,14 @@ ingest_scp_incidence <- function(state, cancer_types, race_options, sex_options,
     state, all_inputs
   )
 
-  return(out)
-  #write_to_db(
-  #  out,
-  #  paste0(state, "_county_incidence")
-  #)
+  write_to_db(
+    out,
+    paste0(state, "_county_incidence")
+  )
 }
 
 #################################################################
+# Example of running the above functions
 
 # Define the options for cancer types that can be viewed in the app
 cancer_types = c(
@@ -377,19 +375,5 @@ year_options = c(
   "latest 5 year average"
 )
 
-out = ingest_scp_incidence(
-  "wa",
-  cancer_types,
-  race_options,
-  sex_options,
-  age_options,
-  stage_options,
-  year_options
-)
-
-head(out)
-
-write_to_db(
-  out,
-  paste0("wa", "_county_incidence")
-)
+#ingest_scp_incidence("wa", cancer_types, race_options, sex_options,
+#  age_options, stage_options, year_options)
