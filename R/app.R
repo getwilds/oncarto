@@ -20,8 +20,6 @@ library(sf)
 library(leaflet)
 library(tigris)
 
-# Source in data ingestion helper functions
-source("./helper_functions.R")
 
 # Define the options for cancer types that can be viewed in the app
 cancer_types = c(
@@ -61,83 +59,90 @@ ui <- fluidPage(
             "cancer_type",
             "Select Cancer Type:",
             choices = c(
-              "all cancer sites" = "allsites",
+              "all cancer sites",
               "bladder",
-              "brain & ons" = "brain",
-              "colon & rectum" = "colon",
+              "brain & ons",
+              "breast (female)",
+              "breast (female in situ)",
+              "cervix",
+              "childhood (ages <15, all sites)",
+              "childhood (ages <20, all sites)",
+              "colon & rectum",
               "esophagus",
-              "kidney & renal pelvis" = "kidney",
+              "kidney & renal pelvis",
               "leukemia",
-              "liver & bile duct" = "liver",
-              "lung & bronchus" = "lung",
-              "melanoma of the skin" = "melanoma",
-              "non-hodgkin lymphoma" = "lymphoma",
-              "oral cavity & pharynx" = "oral",
+              "liver & bile duct",
+              "lung & bronchus",
+              "melanoma of the skin",
+              "non-hodgkin lymphoma",
+              "oral cavity & pharynx",
+              "ovary",
               "pancreas",
+              "prostate",
               "stomach",
-              "thyroid"
+              "thyroid",
+              "uterus (corpus & uterus, nos)"
             ),
-            selected = "allsites"
+            selected = "all cancer sites"
           ),
 
           selectInput(
             "race",
             "Select Race:",
             choices = c(
-              "All Races (includes Hispanic)" = "allraces",
-              "White (non-Hispanic)" = "white",
-              "Black (non-Hispanic)" = "black",
-              "American Indian / Alaska Native (non-Hispanic)" = "native",
-              "Asian / Pacific Islander (non-Hispanic)" = "asian",
-              "Hispanic (Any Race)" = "hisp"
+              "All Races (includes Hispanic)",
+              "White (non-Hispanic)",
+              "Black (non-Hispanic)",
+              "American Indian / Alaska Native (non-Hispanic)",
+              "Asian / Pacific Islander (non-Hispanic)",
+              "Hispanic (Any Race)"
             ),
-            selected = "allraces"
+            selected = "All Races (includes Hispanic)"
           ),
 
           selectInput(
             "sex",
             "Select sex:",
             choices = c(
-              "both sexes" = "both",
+              "both sexes",
               "males",
               "females"
             ),
-            selected = "both"
+            selected = "both sexes"
           ),
 
           selectInput(
             "age",
             "Select age range:",
             choices = c(
-              "all ages" = "all",
-              "ages <50" = "<50",
-              "ages 50+" = "50+",
-              "ages <65" = "<65",
-              "ages 65+" = "65+",
-              "ages <15" = "15",
-              "ages <20" = "20"
+              "all ages",
+              "ages <50",
+              "ages 50+",
+              "ages <65",
+              "ages 65+",
+              "ages <15",
+              "ages <20"
             ),
-            selected = "all"
+            selected = "all ages"
           ),
 
           selectInput(
             "stage",
             "Select cancer stage:",
             choices = c(
-              "all stages" = "allstages",
-              "late stage (regional & distant)" = "latestage"
+              "all stages",
+              "late stage (regional & distant)"
             ),
-            selected = "allstages"
+            selected = "all stages"
           ),
 
           selectInput(
             "year",
             "Select time span:",
             choices = c(
-              "latest 5 year average" = "5yr",
-              "latest single year (us by state)" = "1yr"
+              "latest 5 year average"
             ),
-            selected = "5yr"
+            selected = "latest 5 year average"
           )
         ),
 
