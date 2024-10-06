@@ -40,6 +40,30 @@ cancer_types = c(
   "thyroid"
 )
 
+db_host <- Sys.getenv("DB_HOST")
+db_name <- Sys.getenv("DB_NAME")
+db_user <- Sys.getenv("DB_USER")
+db_password <- Sys.getenv("DB_PASSWORD")
+db_port <- Sys.getenv("DB_PORT")
+
+db_connection <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  host = db_host,
+  dbname = db_name,
+  user = db_user,
+  password = db_password,
+  port = db_port
+)
+
+incidence_data <- DBI::dbReadTable(
+  db_connection,
+  "wa_county_incidence"
+)
+
+DBI::dbDisconnect(db_connection)
+
+
+
 # Get state boundaries for the choropleth visualization using the tigris package
 states_sf <- tigris::states(cb = TRUE) %>%
   st_as_sf()
@@ -158,42 +182,17 @@ server <- function(input, output) {
 
     # Generate a choropleth plot using {leaflet}
     output$choropleth <- renderLeaflet({
-      chosen_cancer = input$cancer_type
-      race = input$race
-      sex = input$sex
-      age = input$age
-      stage = input$stage
-      year = input$year
 
-      # Create a new DuckDB corresponding to incidence data from US states
-      con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+      county_level_incidence <- incidence_data %>%
+        filter(cancer_type == input$cancer_type) %>%
+        filter(race == input$race) %>%
+        filter(sex == input$sex) %>%
+        filter(age == input$age) %>%
+        filter(stage == input$stage) %>%
+        filter(year == input$year)
 
-      ## 1. Ingest data from State Cancer Profiles if needed
-      # Iterate over each possible type of cancer
-      for (cancer in cancer_types) {
-        # For each cancer, get the name of the data file to be saved
-        table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
-        # If the data file is not already in the database...
-        if (table_name %in% dbListTables(con) == FALSE) {
-          # Then write the dataframe corresponding to the incidence data to the db
-          dbWriteTable(
-            con,
-            table_name,
-            get_incidence_df(cancer, race, sex, age, stage, year)
-          )
-        }
-      }
 
-      ## 2. Munge relevant data from State Cancer Prof to wide format for viz
-      # Based on input parameters,
-      incidence_by_cancer_type = merge_all_incidence(
-        cancer_types,
-        race, sex, age, stage, year,
-        con
-      )
 
-      # Disconnect from the database
-      dbDisconnect(con)
 
       ## 3. Visualize wide data using {leaflet}
       # Make a new column called "NAME" in the incidence output data which includes
