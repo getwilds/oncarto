@@ -63,10 +63,11 @@ incidence_data <- DBI::dbReadTable(
 DBI::dbDisconnect(db_connection)
 
 
-
-# Get state boundaries for the choropleth visualization using the tigris package
-states_sf <- tigris::states(cb = TRUE) %>%
-  st_as_sf()
+# Get county boundaries for the choropleth visualization using the tigris package
+wa_counties_sf <- st_transform(
+  tigris::counties(state = "WA", class = "sf"),
+  crs = 4326
+)
 
 # Define UI
 ui <- fluidPage(
@@ -189,39 +190,27 @@ server <- function(input, output) {
         filter(sex == input$sex) %>%
         filter(age == input$age) %>%
         filter(stage == input$stage) %>%
-        filter(year == input$year)
+        filter(year == input$year) %>%
+        mutate(NAMELSAD = County)
 
+      # Join the cancer data with counties boundaries based on county name
+      county_level_incidence_with_shape <- wa_counties_sf %>%
+        left_join(county_level_incidence, by = "NAMELSAD")
 
-
-
-      ## 3. Visualize wide data using {leaflet}
-      # Make a new column called "NAME" in the incidence output data which includes
-      # the name of the state and excludes data contained in parentheses in the
-      # original {cancerprof} state name
-      incidence_by_cancer_type$NAME = gsub(
-        "\\s*\\([^\\)]+\\)",
-        "",
-        incidence_by_cancer_type$State
-      )
-
-      # Join the cancer data with state boundaries based on state name
-      incidence_by_type_with_shape <- states_sf %>%
-        left_join(incidence_by_cancer_type, by = "NAME")
+      print(head(county_level_incidence_with_shape))
 
       # Generate color palette based on the selected cancer data
       pal <- colorNumeric(
         "Blues",
-        domain = incidence_by_type_with_shape[[chosen_cancer]],
+        domain = county_level_incidence_with_shape$Age_Adjusted_Incidence_Rate,
         na.color = "transparent"
       )
 
       # Create an interactive choropleth map using {leaflet}
-      leaflet(data = incidence_by_type_with_shape) %>%
+      leaflet(data = county_level_incidence_with_shape) %>%
         addTiles() %>%
-        # set initial zoom to focus on center of United States
-        setView(lng = -98.583, lat = 39.828, zoom = 2) %>%
         addPolygons(
-          fillColor = ~pal(incidence_by_type_with_shape[[chosen_cancer]]),
+          fillColor = ~pal(Age_Adjusted_Incidence_Rate),
           weight = 1,
           opacity = 1,
           color = "white",
@@ -234,7 +223,7 @@ server <- function(input, output) {
             fillOpacity = 0.7,
             bringToFront = TRUE
           ),
-          label = ~paste(NAME, ": ", incidence_by_type_with_shape[[chosen_cancer]]),
+          label = ~paste(NAMELSAD, ": ", Age_Adjusted_Incidence_Rate),
           labelOptions = labelOptions(
             style = list("font-weight" = "normal", padding = "3px 8px"),
             textsize = "15px",
@@ -243,7 +232,7 @@ server <- function(input, output) {
         ) %>%
         addLegend(
           pal = pal,
-          values = ~incidence_by_type_with_shape[[chosen_cancer]],
+          values = ~Age_Adjusted_Incidence_Rate,
           opacity = 0.7,
           title = "Cancer Incidence",
           position = "topright"
