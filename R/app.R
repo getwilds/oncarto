@@ -19,6 +19,7 @@ library(dplyr)
 library(sf)
 library(leaflet)
 library(tigris)
+library(shinycssloaders)
 
 
 # Define the options for cancer types that can be viewed in the app
@@ -173,7 +174,7 @@ ui <- fluidPage(
 
         # Show the generated choropleth plot
         mainPanel(
-           leafletOutput("choropleth")
+           withSpinner(leafletOutput("choropleth"))
         )
     )
 )
