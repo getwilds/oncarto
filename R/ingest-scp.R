@@ -124,9 +124,10 @@ db_port <- Sys.getenv("DB_PORT")
 
 con <- DBI::dbConnect(
   RPostgres::Postgres(),
+  host = db_host,
   dbname = db_name,
   user = db_user,
   password = db_password,
-  host = db_host
+  port = db_port
 )
 
