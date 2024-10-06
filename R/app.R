@@ -174,6 +174,7 @@ ui <- fluidPage(
 
         # Show the generated choropleth plot
         mainPanel(
+           uiOutput("map_message"),
            withSpinner(leafletOutput("choropleth"))
         )
     )
@@ -194,50 +195,63 @@ server <- function(input, output) {
         filter(year == input$year) %>%
         mutate(NAMELSAD = County)
 
-      # Join the cancer data with counties boundaries based on county name
-      county_level_incidence_with_shape <- wa_counties_sf %>%
-        left_join(county_level_incidence, by = "NAMELSAD")
+      if(all(is.na(county_level_incidence$Age_Adjusted_Incidence_Rate))){
+        output$map_message <- renderUI({
+          HTML("<h4>No cancer incidence data are available for this specific combination of inputs. Please try a different combination of inputs.</h4>")
+        })
 
-      print(head(county_level_incidence_with_shape))
+        return(NULL)
+      } else {
+        output$map_message <- renderUI({
+          NULL
+        })
 
-      # Generate color palette based on the selected cancer data
-      pal <- colorNumeric(
-        "Blues",
-        domain = county_level_incidence_with_shape$Age_Adjusted_Incidence_Rate,
-        na.color = "transparent"
-      )
+        # Join the cancer data with counties boundaries based on county name
+        county_level_incidence_with_shape <- wa_counties_sf %>%
+          left_join(county_level_incidence, by = "NAMELSAD")
 
-      # Create an interactive choropleth map using {leaflet}
-      leaflet(data = county_level_incidence_with_shape) %>%
-        addTiles() %>%
-        addPolygons(
-          fillColor = ~pal(Age_Adjusted_Incidence_Rate),
-          weight = 1,
-          opacity = 1,
-          color = "white",
-          dashArray = "3",
-          fillOpacity = 0.7,
-          highlightOptions = highlightOptions(
-            weight = 3,
-            color = "#666",
-            dashArray = "",
-            fillOpacity = 0.7,
-            bringToFront = TRUE
-          ),
-          label = ~paste(NAMELSAD, ": ", Age_Adjusted_Incidence_Rate),
-          labelOptions = labelOptions(
-            style = list("font-weight" = "normal", padding = "3px 8px"),
-            textsize = "15px",
-            direction = "auto"
-          )
-        ) %>%
-        addLegend(
-          pal = pal,
-          values = ~Age_Adjusted_Incidence_Rate,
-          opacity = 0.7,
-          title = "Cancer Incidence",
-          position = "topright"
+        print(head(county_level_incidence_with_shape))
+
+        # Generate color palette based on the selected cancer data
+        pal <- colorNumeric(
+          "Blues",
+          domain = county_level_incidence_with_shape$Age_Adjusted_Incidence_Rate,
+          na.color = "transparent"
         )
+
+        # Create an interactive choropleth map using {leaflet}
+        leaflet(data = county_level_incidence_with_shape) %>%
+          addTiles() %>%
+          addPolygons(
+            fillColor = ~pal(Age_Adjusted_Incidence_Rate),
+            weight = 1,
+            opacity = 1,
+            color = "white",
+            dashArray = "3",
+            fillOpacity = 0.7,
+            highlightOptions = highlightOptions(
+              weight = 3,
+              color = "#666",
+              dashArray = "",
+              fillOpacity = 0.7,
+              bringToFront = TRUE
+            ),
+            label = ~paste(NAMELSAD, ": ", Age_Adjusted_Incidence_Rate),
+            labelOptions = labelOptions(
+              style = list("font-weight" = "normal", padding = "3px 8px"),
+              textsize = "15px",
+              direction = "auto"
+            )
+          ) %>%
+          addLegend(
+            pal = pal,
+            values = ~Age_Adjusted_Incidence_Rate,
+            opacity = 0.7,
+            title = "Cancer Incidence",
+            position = "topright"
+          )
+      }
+
     })
 }
 
