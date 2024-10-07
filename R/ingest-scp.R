@@ -1,6 +1,7 @@
 library(pak)
 pak("RPostgres")
-pak("dplyr")
+library("dplyr")
+library("DBI")
 
 ##############################################################################
 #' get_input_combinations: Get all combinations of input parameters
