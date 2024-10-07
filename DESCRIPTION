@@ -36,3 +36,16 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Imports:
+    DBI,
+    dbplyr,
+    dplyr,
+    duckdb,
+    duckplyr,
+    leaflet,
+    pak,
+    sf,
+    shiny,
+    shinydashboard,
+    shinythemes,
+    tigris
