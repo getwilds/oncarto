@@ -257,7 +257,7 @@ ingest_scp_incidence <- function(state, cancer_types, race_options, sex_options,
   )
 
   write_to_db(
-    get_incidence_for_all_inputs(state, all_inputs[1:100,]),
+    get_incidence_for_all_inputs(state, all_inputs),
     paste0(state, "_county_incidence")
   )
 }
@@ -326,5 +326,5 @@ year_options = c(
   "latest 5 year average"
 )
 
-ingest_scp_incidence("wa", cancer_types[1], race_options[1], sex_options[1],
- age_options[1], stage_options[1], year_options)
+ingest_scp_incidence("wa", cancer_types, race_options, sex_options,
+ age_options, stage_options, year_options)
