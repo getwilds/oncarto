@@ -22,19 +22,13 @@ library(tigris)
 library(shinycssloaders)
 
 # Get data that have been previously ingested from SCP
-db_host <- Sys.getenv("DB_HOST")
-db_name <- Sys.getenv("DB_NAME")
-db_user <- Sys.getenv("DB_USER")
-db_password <- Sys.getenv("DB_PASSWORD")
-db_port <- Sys.getenv("DB_PORT")
-
 db_connection <- DBI::dbConnect(
   RPostgres::Postgres(),
-  host = db_host,
-  dbname = db_name,
-  user = db_user,
-  password = db_password,
-  port = db_port
+  host = Sys.getenv("DB_HOST"),
+  dbname = Sys.getenv("DB_NAME"),
+  user = Sys.getenv("DB_USER"),
+  password = Sys.getenv("DB_PASSWORD"),
+  port = Sys.getenv("DB_PORT")
 )
 
 incidence_data <- DBI::dbReadTable(
