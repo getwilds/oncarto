@@ -326,5 +326,5 @@ year_options = c(
   "latest 5 year average"
 )
 
-ingest_scp_incidence("wa", cancer_types, race_options, sex_options,
- age_options, stage_options, year_options)
+# ingest_scp_incidence("wa", cancer_types, race_options, sex_options,
+#  age_options, stage_options, year_options)
