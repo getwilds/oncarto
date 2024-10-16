@@ -1,7 +1,7 @@
-library(pak)
-pak("RPostgres")
-library("dplyr")
-library("DBI")
+library(RPostgres)
+library(dplyr)
+library(DBI)
+library(purrr)
 
 ##############################################################################
 #' get_input_combinations: Get all combinations of input parameters
@@ -33,7 +33,7 @@ library("DBI")
 #'
 
 get_input_combinations <- function(cancer_types, race_options, sex_options, age_options, stage_options, year_options){
-  out <- expand.grid(
+  expand.grid(
     list(
       cancer_type = cancer_types,
       race = race_options,
@@ -44,8 +44,6 @@ get_input_combinations <- function(cancer_types, race_options, sex_options, age_
     ),
     stringsAsFactors = FALSE
   )
-
-  return(out)
 }
 
 ##############################################################################
@@ -79,45 +77,30 @@ get_input_combinations <- function(cancer_types, race_options, sex_options, age_
 #' )
 #'
 #'
+#'
 
-get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, chosen_age, chosen_stage, chosen_year){
-  out = as.data.frame(
-    cancerprof::incidence_cancer(
+get_incidence_data <- function(state, cancer, race, sex, age, stage, year){
+  cancerprof::incidence_cancer(
       state, "county",
-      chosen_cancer,
-      chosen_race,
-      chosen_sex,
-      chosen_age,
-      chosen_stage,
-      chosen_year
-    )
-  ) %>%
+      cancer,
+      race,
+      sex,
+      age,
+      stage,
+      year
+    ) %>%
   select(
     County,
     Age_Adjusted_Incidence_Rate
+  ) %>%
+  mutate(
+    Cancer_Type = cancer,
+    Race = race,
+    Sex = sex,
+    Age = age,
+    Stage = stage,
+    Year = year
   )
-
-  out <- out %>%
-    mutate(
-      cancer_type = replicate(nrow(out), chosen_cancer)
-    ) %>%
-    mutate(
-      race = replicate(nrow(out), chosen_race)
-    ) %>%
-    mutate(
-      sex = replicate(nrow(out), chosen_sex)
-    ) %>%
-    mutate(
-      age = replicate(nrow(out), chosen_age)
-    ) %>%
-    mutate(
-      stage = replicate(nrow(out), chosen_stage)
-    )%>%
-    mutate(
-      year = replicate(nrow(out), chosen_year)
-    )
-
-  return(out)
 }
 
 ###################################################################
@@ -139,45 +122,28 @@ get_incidence_data <- function(state, chosen_cancer, chosen_race, chosen_sex, ch
 #'    "wa",
 #'    current_row
 #' )
-#'
 
 process_row <- function(state, row) {
-  current_cancer <- as.character(row["cancer_type"])
-  current_race <- as.character(row["race"])
-  current_sex <- as.character(row["sex"])
-  current_age <- as.character(row["age"])
-  current_stage <- as.character(row["stage"])
-  current_timespan <- as.character(row["timespan"])
+  row <- map_chr(row, as.character)
 
-  print(
-    paste(
-      "Processing:",
-      current_cancer, current_race, current_sex,
-      current_age, current_stage, current_timespan
-    )
-  )
-
-  current_df <- tryCatch({
+  tryCatch({
     get_incidence_data(
       state,
-      current_cancer,
-      current_race,
-      current_sex,
-      current_age,
-      current_stage,
-      current_timespan
+      row["cancer_type"],
+      row["race"],
+      row["sex"],
+      row["age"],
+      row["stage"],
+      row["timespan"]
     )
   }, error = function(e) {
-    # More detailed error message
-    message(paste("Error in row with cancer type:", current_cancer,
-                  "race:", current_race, "sex:", current_sex,
-                  "age:", current_age, "stage:", current_stage,
-                  "timespan:", current_timespan,
-                  " - Error message:", e$message))
-    return(NULL)  # Return NULL in case of error
+    paste0(c(row["cancer_type"],
+           row["race"],
+           row["sex"],
+           row["age"],
+           row["stage"],
+           row["timespan"]), collapse = ",")
   })
-
-  return(current_df)
 }
 
 
@@ -203,18 +169,12 @@ process_row <- function(state, row) {
 
 get_incidence_for_all_inputs <- function(state, input_combinations) {
   # Apply `process_row` to each row of the input_combinations df
-  result_list <- lapply(
-    1:nrow(input_combinations),
-    function(i) process_row(state, input_combinations[i, ])
-  )
-
-  # Combine the resulting dataframes into a single output
-  out <- do.call(
-    rbind,
-    result_list[!sapply(result_list, is.null)] # Exclude NULL results
-  )
-
-  return(out)
+  input_combinations %>%
+    rowwise() %>%
+    group_split() %>%
+    map(process_row, state = state, .progress = TRUE) %>%
+    keep(is.data.frame) %>%
+    list_rbind()
 }
 
 
@@ -238,20 +198,16 @@ get_incidence_for_all_inputs <- function(state, input_combinations) {
 #'
 
 write_to_db <- function(df, df_name) {
-  db_host <- Sys.getenv("DB_HOST")
-  db_name <- Sys.getenv("DB_NAME")
-  db_user <- Sys.getenv("DB_USER")
-  db_password <- Sys.getenv("DB_PASSWORD")
-  db_port <- Sys.getenv("DB_PORT")
-
   db_connection <- DBI::dbConnect(
     RPostgres::Postgres(),
-    host = db_host,
-    dbname = db_name,
-    user = db_user,
-    password = db_password,
-    port = db_port
+    host = Sys.getenv("DB_HOST"),
+    dbname = Sys.getenv("DB_NAME"),
+    user = Sys.getenv("DB_USER"),
+    password = Sys.getenv("DB_PASSWORD"),
+    port = Sys.getenv("DB_PORT")
   )
+
+  on.exit(DBI::dbDisconnect(db_connection))
 
   DBI::dbWriteTable(
     db_connection,
@@ -260,8 +216,6 @@ write_to_db <- function(df, df_name) {
     overwrite = TRUE,
     row.names = FALSE
   )
-
-  DBI::dbDisconnect(db_connection)
 }
 
 
@@ -298,16 +252,12 @@ write_to_db <- function(df, df_name) {
 #'
 
 ingest_scp_incidence <- function(state, cancer_types, race_options, sex_options, age_options, stage_options, year_options) {
-  all_inputs = get_input_combinations(
+  all_inputs <- get_input_combinations(
     cancer_types, race_options, sex_options, age_options, stage_options, year_options
   )
 
-  out = get_incidence_for_all_inputs(
-    state, all_inputs
-  )
-
   write_to_db(
-    out,
+    get_incidence_for_all_inputs(state, all_inputs[1:100,]),
     paste0(state, "_county_incidence")
   )
 }
@@ -376,5 +326,5 @@ year_options = c(
   "latest 5 year average"
 )
 
-#ingest_scp_incidence("wa", cancer_types, race_options, sex_options,
-#  age_options, stage_options, year_options)
+ingest_scp_incidence("wa", cancer_types[1], race_options[1], sex_options[1],
+ age_options[1], stage_options[1], year_options)
