@@ -7,3 +7,4 @@ renv/library/
 renv/staging/
 renv/cache/
 inst/doc
+.Renviron

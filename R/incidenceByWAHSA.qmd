@@ -1,0 +1,323 @@
+---
+title: "Cancer Incidence by Washington Health Service Area"
+format: html
+editor: visual
+---
+
+```{r}
+library(pak)
+pak("getwilds/cancerprof@dev")
+pak("duckdb")
+pak("duckplyr")
+pak("DBI")
+pak("dbplyr")
+pak("sf")
+pak("ggplot2")
+pak("dplyr")
+pak("RColorBrewer")
+```
+
+## Collect Incidence Data (by cancer type)
+
+```{r}
+library(duckdb)
+library(duckplyr)
+library(DBI)
+library(dbplyr)
+library(sf)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+```
+
+```{r}
+# Create a new DuckDB database
+con <- dbConnect(duckdb::duckdb(), "cancer-incidence-wa-hsa.duckdb")
+```
+
+```{r}
+get_incidence_db_name <- function(cancer, race, sex, age, stage, year){
+  ## all cancer sites = all
+  ## bladder = bladder
+  ## brain & ons = brain
+  ## colon & rectum = colon
+  ## esophagus = esophagus
+  ## kidney & renal pelvis = kidney
+  ## leukemia = leukemia
+  ## liver & bile duct = liver
+  ## lung & bronchus = lung
+  ## melanoma of the skin = melanoma
+  ## non-hodgkin lymphoma = lymphoma
+  ## oral cavity & pharynx = oral
+  ## pancreas = pancreas
+  ## stomach = stomach
+  ## thyroid = thyroid
+  c_name = "allsites" # all cancer sites
+  if (cancer == "bladder" ||
+     cancer == "esophagus" ||
+     cancer == "pancreas" ||
+     cancer == "stomach" ||
+     cancer == "thyroid" ||
+     cancer == "leukemia") {
+    c_name = cancer
+  } else if (cancer == "brain & ons") {
+    c_name = "brain"
+  } else if (cancer == "colon & rectum") {
+    c_name = "colon"
+  } else if (cancer == "kidney & renal pelvis") {
+    c_name = "kidney"
+  } else if (cancer == "liver & bile duct") {
+    c_name = "liver"
+  } else if (cancer == "lung & bronchus") {
+    c_name = "lung"
+  } else if (cancer == "melanoma of the skin") {
+    c_name = "melanoma"
+  } else if (cancer == "non-hodgkin lymphoma") {
+    c_name = "lymphoma"
+  } else if (cancer == "oral cavity & pharynx") {
+    c_name = "oral"
+  } 
+
+  ## All Races (includes Hispanic) = all
+  ## White (non-Hispanic) = white
+  ## Black (non-Hispanic) = black
+  ## American Indian / Alaska Native (non-Hispanic) = native
+  ## Asian / Pacific Islander (non-Hispanic) = asian
+  ## Hispanic (Any Race) = hisp
+  r_name = "allraces" # All Races (includes Hispanic)
+  if (race == "White (non-Hispanic)") {
+    r_name = "white"
+  } else if (race == "Black (non-Hispanic)") {
+    r_name = "black"
+  } else if (race == "American Indian / Alaska Native (non-Hispanic)") {
+    r_name = "native"
+  } else if (race == "Asian / Pacific Islander (non-Hispanic)") {
+    r_name = "asian"
+  } else if (race == "Hispanic (Any Race)") {
+    r_name = "hisp"
+  }
+  
+  ## both sexes = b
+  ## male = m
+  ## female = f
+  sx_name = "bothsexes" # both sexes
+  if (sex == "male") {
+    sx_name = "male"
+  } else if (sex == "female") {
+    sx_name = "female"
+  } 
+
+  ## all ages = all
+  ## ages <50 = <50
+  ## ages 50+ = 50+
+  ## ages <65 = <65
+  ## ages 65+ = 65+
+  ## ages <15 = 15
+  ## ages <20 = 20
+  a_name = "allages" # all ages
+  if (age == "ages <50") {
+    a_name = "<50"
+  } else if (age == "ages 50+") {
+    a_name = "50+"
+  } else if (age == "ages <65") {
+    a_name = "<65"
+  } else if (age == "ages 65+") {
+    a_name = "65+"
+  } else if (age == "ages <15") {
+    a_name = "15"
+  } else if (age == "ages <20") {
+    a_name = "20"
+  }
+  
+  ## all stages = all
+  ## late stage (regional & distant) = late
+  st_name = "allstages" # all stages
+  if (stage == "late stage (regional & distant)") {
+    st_name = "latestage"
+  }
+  
+  ## latest 5 year average = avg
+  ## latest single year (us by state) = one
+  y_name = "5yr" # latest 5 year average
+  if (stage == "latest single year (us by state)") {
+    y_name = "1yr"
+  }
+
+  out = paste0("wa_hsa_", c_name, "_", r_name, "_", sx_name, "_", a_name, "_", st_name, "_", y_name)
+  return(out)
+}
+```
+
+```{r}
+get_incidence_df <- function(cancer, race, sex, age, stage, year){
+  out = as.data.frame(
+    cancerprof::incidence_cancer(
+      "WA", "hsa",
+      cancer,
+      race,
+      sex,
+      age,
+      stage,
+      year
+    )
+  )
+  
+  return(out)
+}
+```
+
+```{r}
+# Set parameters
+race = "All Races (includes Hispanic)"
+sex = "both sexes"
+age = "all ages"
+stage = "all stages"
+year = "latest 5 year average"
+
+cancer_types = c(
+  "all cancer sites",
+  "bladder",
+  "brain & ons",
+  "colon & rectum",
+  "esophagus",
+  "kidney & renal pelvis",
+  "leukemia",
+  "liver & bile duct",
+  "lung & bronchus",
+  "melanoma of the skin",
+  "non-hodgkin lymphoma",
+  "oral cavity & pharynx",
+  "pancreas",
+  "stomach",
+  "thyroid"
+)
+```
+
+```{r}
+cancerprof::incidence_cancer(
+      "USA", "state",
+      "all cancer sites",
+      "All Races (includes Hispanic)",
+      "males",
+      "all ages",
+      "all stages",
+      "latest 5 year average"
+    )
+```
+
+```{r}
+for (cancer in cancer_types) {
+  table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+  if (table_name %in% dbListTables(con) == FALSE) {
+    dbWriteTable(
+      con,
+      table_name,
+      get_incidence_df(cancer, race, sex, age, stage, year)
+    )
+  }
+}
+```
+
+```{r}
+dbListTables(con)
+```
+
+# Merge DB data
+
+```{r}
+# Set parameters
+race = "All Races (includes Hispanic)"
+sex = "both sexes"
+age = "all ages"
+stage = "all stages"
+year = "latest 5 year average"
+
+cancer_types = c(
+  "all cancer sites",
+  "bladder",
+  "brain & ons",
+  "colon & rectum",
+  "esophagus",
+  "kidney & renal pelvis",
+  "leukemia",
+  "liver & bile duct",
+  "lung & bronchus",
+  "melanoma of the skin",
+  "non-hodgkin lymphoma",
+  "oral cavity & pharynx",
+  "pancreas",
+  "stomach",
+  "thyroid"
+)
+```
+
+```{r}
+# Get relevant tables from the db related to the parameters of interest
+relevant_tables = c()
+for (cancer in cancer_types) {
+  table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
+  if (table_name %in% dbListTables(con)) {
+    relevant_tables = c(relevant_tables, table_name)
+  }
+}
+```
+
+```{r}
+# Merge relevant tables to get final output data for cartographic visualization
+incidence_by_cancer_type = data.frame()
+for (tableName in relevant_tables) {
+  cancerName = strsplit(tableName, "_")[[1]][3]
+  if (nrow(incidence_by_cancer_type) == 0) {
+    incidence_by_cancer_type = dbReadTable(con, tableName) %>%
+      rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
+      select(Health_Service_Area, !!cancerName)
+  } else {
+    incidence_by_cancer_type <- incidence_by_cancer_type %>%
+      left_join(
+        dbReadTable(con, tableName) %>%
+        rename(!!cancerName := Age_Adjusted_Incidence_Rate) %>%
+        select(Health_Service_Area, !!cancerName), 
+        by = "Health_Service_Area"
+      )
+  }
+}
+
+incidence_by_cancer_type
+```
+
+```{r}
+dbDisconnect(con)
+```
+
+# Visualize data (TBD)
+
+```{r}
+hrr_shapefile <- st_read("./HSA_Bdry__AK_HI_unmodified/hsa-shapefile/HsaBdry_AK_HI_unmodified.shp")
+```
+
+```{r}
+head(hrr_shapefile)
+```
+
+https://doh.wa.gov/data-statistical-reports/data-systems/geographic-information-system/downloadable-data-sets
+
+https://www.cdc.gov/nchs/data/misc/atlasmet.pdf
+
+https://geo.wa.gov/datasets/12712f465fc44fb58328c6e0255ca27e/explore
+
+https://statecancerprofiles.cancer.gov/map/map.withimage.php?53&hsa&001&001&00&0&01&0&1&5&0#results
+
+Going with: https://data.dartmouthatlas.org/supplemental/
+
+# Searching for parameters that can produce cancer incidence data
+
+Caveats: - For cancer types: 'breast (female)', 'breast (female in situ)', 'cervix', and 'uterus (corpus & uterus, nos)', we must specify that the sex is 'females' only - For cancer types: 'childhood (ages \<15, all sites)', we must specify that the age is 'ages \<15' - For cancer types: 'childhood (ages \<20, all sites)', we must specify that the age is 'ages \<20' - For cancer types: 'prostate', we must specify that the sex is 'males' only
+
+Let's focus on just cancer type for now. We can incorporate sex, race, age, cancer stage, and year later on. Let's also assume we're sticking with the same area and areatype (WA, hsa). Lastly, we ignore childhood cancer types (b/c these are age-dependent) as well as breast, cervical, uterine, and prostate cancer types (b/c these are sex-dependent)
+
+Let's start by saving out the incidence for different cancer types, for all sexes, ages, and races, as well as for all stages and the latest 5-year average.
+
+## Area Type
+
+-   County never seems to produce output for "area type" (regardless of area)
+-   Works if we go with HSA instead of County for the area type.
