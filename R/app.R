@@ -8,8 +8,7 @@
 #
 
 # Call required libraries / packages
-library(pak)
-pak("getwilds/cancerprof@dev")
+library(cancerprof) # @dev
 library(shiny)
 library(duckdb)
 library(duckplyr)
@@ -19,32 +18,34 @@ library(dplyr)
 library(sf)
 library(leaflet)
 library(tigris)
+library(shinycssloaders)
 
-# Source in data ingestion helper functions
-source("./helper_functions.R")
+# Get data that have been previously ingested from SCP
+get_incidence_data <- function() {
+  db_connection <- DBI::dbConnect(
+    RPostgres::Postgres(),
+    host = Sys.getenv("DB_HOST"),
+    dbname = Sys.getenv("DB_NAME"),
+    user = Sys.getenv("DB_USER"),
+    password = Sys.getenv("DB_PASSWORD"),
+    port = Sys.getenv("DB_PORT")
+  )
 
-# Define the options for cancer types that can be viewed in the app
-cancer_types = c(
-  "all cancer sites",
-  "bladder",
-  "brain & ons",
-  "colon & rectum",
-  "esophagus",
-  "kidney & renal pelvis",
-  "leukemia",
-  "liver & bile duct",
-  "lung & bronchus",
-  "melanoma of the skin",
-  "non-hodgkin lymphoma",
-  "oral cavity & pharynx",
-  "pancreas",
-  "stomach",
-  "thyroid"
+  on.exit(DBI::dbDisconnect(db_connection))
+
+  DBI::dbReadTable(
+    db_connection,
+    "wa_county_incidence"
+  )
+}
+
+incidence_data <- get_incidence_data()
+
+# Get county boundaries for the choropleth visualization using the tigris package
+wa_counties_sf <- st_transform(
+  tigris::counties(state = "WA", class = "sf"),
+  crs = 4326
 )
-
-# Get state boundaries for the choropleth visualization using the tigris package
-states_sf <- tigris::states(cb = TRUE) %>%
-  st_as_sf()
 
 # Define UI
 ui <- fluidPage(
@@ -61,89 +62,97 @@ ui <- fluidPage(
             "cancer_type",
             "Select Cancer Type:",
             choices = c(
-              "all cancer sites" = "allsites",
+              "all cancer sites",
               "bladder",
-              "brain & ons" = "brain",
-              "colon & rectum" = "colon",
+              "brain & ons",
+              "breast (female)",
+              "breast (female in situ)",
+              "cervix",
+              "childhood (ages <15, all sites)",
+              "childhood (ages <20, all sites)",
+              "colon & rectum",
               "esophagus",
-              "kidney & renal pelvis" = "kidney",
+              "kidney & renal pelvis",
               "leukemia",
-              "liver & bile duct" = "liver",
-              "lung & bronchus" = "lung",
-              "melanoma of the skin" = "melanoma",
-              "non-hodgkin lymphoma" = "lymphoma",
-              "oral cavity & pharynx" = "oral",
+              "liver & bile duct",
+              "lung & bronchus",
+              "melanoma of the skin",
+              "non-hodgkin lymphoma",
+              "oral cavity & pharynx",
+              "ovary",
               "pancreas",
+              "prostate",
               "stomach",
-              "thyroid"
+              "thyroid",
+              "uterus (corpus & uterus, nos)"
             ),
-            selected = "allsites"
+            selected = "all cancer sites"
           ),
 
           selectInput(
             "race",
             "Select Race:",
             choices = c(
-              "All Races (includes Hispanic)" = "allraces",
-              "White (non-Hispanic)" = "white",
-              "Black (non-Hispanic)" = "black",
-              "American Indian / Alaska Native (non-Hispanic)" = "native",
-              "Asian / Pacific Islander (non-Hispanic)" = "asian",
-              "Hispanic (Any Race)" = "hisp"
+              "All Races (includes Hispanic)",
+              "White (non-Hispanic)",
+              "Black (non-Hispanic)",
+              "American Indian / Alaska Native (non-Hispanic)",
+              "Asian / Pacific Islander (non-Hispanic)",
+              "Hispanic (Any Race)"
             ),
-            selected = "allraces"
+            selected = "All Races (includes Hispanic)"
           ),
 
           selectInput(
             "sex",
             "Select sex:",
             choices = c(
-              "both sexes" = "both",
+              "both sexes",
               "males",
               "females"
             ),
-            selected = "both"
+            selected = "both sexes"
           ),
 
           selectInput(
             "age",
             "Select age range:",
             choices = c(
-              "all ages" = "all",
-              "ages <50" = "<50",
-              "ages 50+" = "50+",
-              "ages <65" = "<65",
-              "ages 65+" = "65+",
-              "ages <15" = "15",
-              "ages <20" = "20"
+              "all ages",
+              "ages <50",
+              "ages 50+",
+              "ages <65",
+              "ages 65+",
+              "ages <15",
+              "ages <20"
             ),
-            selected = "all"
+            selected = "all ages"
           ),
 
           selectInput(
             "stage",
             "Select cancer stage:",
             choices = c(
-              "all stages" = "allstages",
-              "late stage (regional & distant)" = "latestage"
+              "all stages",
+              "late stage (regional & distant)"
             ),
-            selected = "allstages"
+            selected = "all stages"
           ),
 
           selectInput(
             "year",
             "Select time span:",
             choices = c(
-              "latest 5 year average" = "5yr",
-              "latest single year (us by state)" = "1yr"
+              "latest 5 year average"
             ),
-            selected = "5yr"
+            selected = "latest 5 year average"
           )
         ),
 
         # Show the generated choropleth plot
         mainPanel(
-           leafletOutput("choropleth")
+           uiOutput("map_message"),
+           withSpinner(leafletOutput("choropleth"))
         )
     )
 )
@@ -153,97 +162,75 @@ server <- function(input, output) {
 
     # Generate a choropleth plot using {leaflet}
     output$choropleth <- renderLeaflet({
-      chosen_cancer = input$cancer_type
-      race = input$race
-      sex = input$sex
-      age = input$age
-      stage = input$stage
-      year = input$year
 
-      # Create a new DuckDB corresponding to incidence data from US states
-      con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
+      # Get the county-level incidence data related to our desired input
+      county_level_incidence <- incidence_data %>%
+        filter(cancer_type == input$cancer_type) %>%
+        filter(race == input$race) %>%
+        filter(sex == input$sex) %>%
+        filter(age == input$age) %>%
+        filter(stage == input$stage) %>%
+        filter(year == input$year) %>%
+        mutate(NAMELSAD = County)
 
-      ## 1. Ingest data from State Cancer Profiles if needed
-      # Iterate over each possible type of cancer
-      for (cancer in cancer_types) {
-        # For each cancer, get the name of the data file to be saved
-        table_name = get_incidence_db_name(cancer, race, sex, age, stage, year)
-        # If the data file is not already in the database...
-        if (table_name %in% dbListTables(con) == FALSE) {
-          # Then write the dataframe corresponding to the incidence data to the db
-          dbWriteTable(
-            con,
-            table_name,
-            get_incidence_df(cancer, race, sex, age, stage, year)
-          )
-        }
+      # If data do not exist for this combination of inputs, print a warning message
+      if(all(is.na(county_level_incidence$Age_Adjusted_Incidence_Rate))){
+        output$map_message <- renderUI({
+          HTML("<h4>No cancer incidence data are available for this specific combination of inputs. Please try a different combination of inputs.</h4>")
+        })
+
+        return(NULL)
       }
 
-      ## 2. Munge relevant data from State Cancer Prof to wide format for viz
-      # Based on input parameters,
-      incidence_by_cancer_type = merge_all_incidence(
-        cancer_types,
-        race, sex, age, stage, year,
-        con
-      )
+      # Otherwise, we can print our map
+      else {
+        output$map_message <- renderUI({
+          NULL
+        })
 
-      # Disconnect from the database
-      dbDisconnect(con)
+        # Join the cancer data with counties boundaries based on county name
+        county_level_incidence_with_shape <- wa_counties_sf %>%
+          left_join(county_level_incidence, by = "NAMELSAD")
 
-      ## 3. Visualize wide data using {leaflet}
-      # Make a new column called "NAME" in the incidence output data which includes
-      # the name of the state and excludes data contained in parentheses in the
-      # original {cancerprof} state name
-      incidence_by_cancer_type$NAME = gsub(
-        "\\s*\\([^\\)]+\\)",
-        "",
-        incidence_by_cancer_type$State
-      )
-
-      # Join the cancer data with state boundaries based on state name
-      incidence_by_type_with_shape <- states_sf %>%
-        left_join(incidence_by_cancer_type, by = "NAME")
-
-      # Generate color palette based on the selected cancer data
-      pal <- colorNumeric(
-        "Blues",
-        domain = incidence_by_type_with_shape[[chosen_cancer]],
-        na.color = "transparent"
-      )
-
-      # Create an interactive choropleth map using {leaflet}
-      leaflet(data = incidence_by_type_with_shape) %>%
-        addTiles() %>%
-        # set initial zoom to focus on center of United States
-        setView(lng = -98.583, lat = 39.828, zoom = 2) %>%
-        addPolygons(
-          fillColor = ~pal(incidence_by_type_with_shape[[chosen_cancer]]),
-          weight = 1,
-          opacity = 1,
-          color = "white",
-          dashArray = "3",
-          fillOpacity = 0.7,
-          highlightOptions = highlightOptions(
-            weight = 3,
-            color = "#666",
-            dashArray = "",
-            fillOpacity = 0.7,
-            bringToFront = TRUE
-          ),
-          label = ~paste(NAME, ": ", incidence_by_type_with_shape[[chosen_cancer]]),
-          labelOptions = labelOptions(
-            style = list("font-weight" = "normal", padding = "3px 8px"),
-            textsize = "15px",
-            direction = "auto"
-          )
-        ) %>%
-        addLegend(
-          pal = pal,
-          values = ~incidence_by_type_with_shape[[chosen_cancer]],
-          opacity = 0.7,
-          title = "Cancer Incidence",
-          position = "topright"
+        # Generate color palette based on the selected cancer data
+        pal <- colorNumeric(
+          "Blues",
+          domain = county_level_incidence_with_shape$Age_Adjusted_Incidence_Rate,
+          na.color = "transparent"
         )
+
+        # Create an interactive choropleth map using {leaflet}
+        leaflet(data = county_level_incidence_with_shape) %>%
+          addTiles() %>%
+          addPolygons(
+            fillColor = ~pal(Age_Adjusted_Incidence_Rate),
+            weight = 1,
+            opacity = 1,
+            color = "white",
+            dashArray = "3",
+            fillOpacity = 0.7,
+            highlightOptions = highlightOptions(
+              weight = 3,
+              color = "#666",
+              dashArray = "",
+              fillOpacity = 0.7,
+              bringToFront = TRUE
+            ),
+            label = ~paste(NAMELSAD, ": ", Age_Adjusted_Incidence_Rate),
+            labelOptions = labelOptions(
+              style = list("font-weight" = "normal", padding = "3px 8px"),
+              textsize = "15px",
+              direction = "auto"
+            )
+          ) %>%
+          addLegend(
+            pal = pal,
+            values = ~Age_Adjusted_Incidence_Rate,
+            opacity = 0.7,
+            title = "Cancer Incidence",
+            position = "topright"
+          )
+      }
     })
 }
 
