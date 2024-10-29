@@ -8,8 +8,7 @@
 #
 
 # Call required libraries / packages
-library(pak)
-pak("getwilds/cancerprof@dev")
+library(cancerprof) # @dev
 library(shiny)
 library(duckdb)
 library(duckplyr)
@@ -22,22 +21,25 @@ library(tigris)
 library(shinycssloaders)
 
 # Get data that have been previously ingested from SCP
-db_connection <- DBI::dbConnect(
-  RPostgres::Postgres(),
-  host = Sys.getenv("DB_HOST"),
-  dbname = Sys.getenv("DB_NAME"),
-  user = Sys.getenv("DB_USER"),
-  password = Sys.getenv("DB_PASSWORD"),
-  port = Sys.getenv("DB_PORT")
-)
+get_incidence_data <- function() {
+  db_connection <- DBI::dbConnect(
+    RPostgres::Postgres(),
+    host = Sys.getenv("DB_HOST"),
+    dbname = Sys.getenv("DB_NAME"),
+    user = Sys.getenv("DB_USER"),
+    password = Sys.getenv("DB_PASSWORD"),
+    port = Sys.getenv("DB_PORT")
+  )
 
-incidence_data <- DBI::dbReadTable(
-  db_connection,
-  "wa_county_incidence"
-)
+  on.exit(DBI::dbDisconnect(db_connection))
 
-DBI::dbDisconnect(db_connection)
+  DBI::dbReadTable(
+    db_connection,
+    "wa_county_incidence"
+  )
+}
 
+incidence_data <- get_incidence_data()
 
 # Get county boundaries for the choropleth visualization using the tigris package
 wa_counties_sf <- st_transform(
