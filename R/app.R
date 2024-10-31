@@ -9,7 +9,6 @@
 
 ## TODO:
 ## make Shiny app run when you call "oncarto" from the R console
-## fill out additional tabs / background
 
 # Call required libraries / packages
 library(cancerprof) # @dev
@@ -25,6 +24,10 @@ library(tigris)
 library(shinythemes)
 library(shinydashboard)
 library(shinycssloaders)
+
+# Set aesthetics of app (logo and title)
+source("set-aesthetics.R")
+set_aesthetics()
 
 # Get data that have been previously ingested from SCP
 get_incidence_data <- function() {
@@ -56,13 +59,13 @@ wa_counties_sf <- st_transform(
 # Define UI
 ui <- dashboardPage(
     dashboardHeader(
-      # FH logo that links to DaSL website
+      # Get logo information from set-aesthetics.R
       title = tags$a(
-        href='https://hutchdatascience.org',
+        href = Sys.getenv("LOGO_URL"),
         tags$img(
-          src='fhLogo.png',
-          height='35px',
-          width='155px'
+          src = Sys.getenv("LOGO_SRC"),
+          height = Sys.getenv("LOGO_HEIGHT"),
+          width = Sys.getenv("LOGO_WIDTH")
         )
       )
     ),
@@ -184,22 +187,14 @@ ui <- dashboardPage(
       # Include proper styling
       includeCSS("www/hutch_theme.css"),
 
-      tags$head(tags$style(HTML(
-          '.myClass {
-          font-size: 20px;
-          line-height: 50px;
-          text-align: left;
-          font-family: "Arial",Helvetica,Arial,sans-serif;
-          padding: 0 15px;
-          overflow: hidden;
-          color: white;
-      }'))),
-
-      # Specify app title: Oncology Cartographer
+      # Specify app title from set-aesthetics.R
       tags$script(HTML(
-        '$(document).ready(function() {
-          $("header").find("nav").append(\'<span class="myClass"> Oncology Cartographer (Oncarto) </span>\');
-      })')),
+        paste0(
+          '$(document).ready(function() { $("header").find("nav").append(\'<span class="dashboard-title"> ',
+          Sys.getenv("APP_TITLE"),
+          ' </span>\');})'
+        )
+      )),
 
       tabItems(
         tabItem(
@@ -258,7 +253,7 @@ server <- function(input, output, session) {
     output$backgroundInfo <- renderUI({
       HTML(
         paste(
-          "Oncarto (Oncology Cartographer) is an R package / Shiny dashboard developed by the Fred Hutch Data Science Lab for the automated integration and visualization of publicly available cancer incidence data for the Fred Hutch Cancer Center catchment area. We aim to develop a robust, open-source cartographic data visualization package from the ground up that can take the data made available by State Cancer Profiles and make it easily accessible by the public."
+          "Oncarto (Oncology Cartographer) is an R package / Shiny dashboard developed by the Fred Hutch Data Science Lab for the automated integration and visualization of publicly available cancer incidence data for the Fred Hutch Cancer Center catchment area. We aim to develop a robust, open-source cartographic data visualization package from the ground up that can take the data made available by State Cancer Profiles and make it easily accessible by the public. TO BE EDITED FURTHER."
         )
       )
     })
@@ -343,7 +338,7 @@ server <- function(input, output, session) {
             pal = pal,
             values = ~Age_Adjusted_Incidence_Rate,
             opacity = 0.7,
-            title = "Age-Adjusted Cancer Incidence",
+            title = "Age-Adjusted Cancer Incidence Rate",
             position = "topright"
           )
       }
