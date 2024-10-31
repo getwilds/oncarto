@@ -29,6 +29,9 @@ library(shinycssloaders)
 source("set-aesthetics.R")
 set_aesthetics()
 
+# Set CSS file path
+css_file_path = "www/hutch_theme.css"
+
 # Get data that have been previously ingested from SCP
 get_incidence_data <- function() {
   db_connection <- DBI::dbConnect(
@@ -185,7 +188,7 @@ ui <- dashboardPage(
     # Main body of the app
     dashboardBody(
       # Include proper styling
-      includeCSS("www/hutch_theme.css"),
+      includeCSS(css_file_path),
 
       # Specify app title from set-aesthetics.R
       tags$script(HTML(
