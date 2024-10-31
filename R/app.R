@@ -85,38 +85,38 @@ ui <- dashboardPage(
             "cancer_type",
             "Select cancer subtype of interest:",
             choices = c(
-              "all cancer sites",
-              "bladder",
-              "brain & ons",
-              "breast (female)",
-              "breast (female in situ)",
-              "cervix",
-              "childhood (ages <15, all sites)",
-              "childhood (ages <20, all sites)",
-              "colon & rectum",
-              "esophagus",
-              "kidney & renal pelvis",
-              "leukemia",
-              "liver & bile duct",
-              "lung & bronchus",
-              "melanoma of the skin",
-              "non-hodgkin lymphoma",
-              "oral cavity & pharynx",
-              "ovary",
-              "pancreas",
-              "prostate",
-              "stomach",
-              "thyroid",
-              "uterus (corpus & uterus, nos)"
+              "All subtypes" = "all cancer sites",
+              "Bladder" = "bladder",
+              "Brain and other nervous system" = "brain & ons",
+              "Breast (female)" = "breast (female)",
+              "Breast (female in situ)" = "breast (female in situ)",
+              "Cervix" = "cervix",
+              "Childhood (ages <15, all subtypes)" = "childhood (ages <15, all sites)",
+              "Childhood (ages <20, all subtypes)" = "childhood (ages <20, all sites)",
+              "Colon and rectum" = "colon & rectum",
+              "Esophagus" = "esophagus",
+              "Kidney and renal pelvis" = "kidney & renal pelvis",
+              "Leukemia" = "leukemia",
+              "Liver and bile duct" = "liver & bile duct",
+              "Lung and bronchus" = "lung & bronchus",
+              "Melanoma of the skin" = "melanoma of the skin",
+              "Non-hodgkin lymphoma" = "non-hodgkin lymphoma",
+              "Oral cavity and pharynx" = "oral cavity & pharynx",
+              "Ovary" = "ovary",
+              "Pancreas" = "pancreas",
+              "Prostate" = "prostate",
+              "Stomach" = "stomach",
+              "Thyroid" = "thyroid",
+              "Uterus (corpus and not otherwise specified)" = "uterus (corpus & uterus, nos)"
             ),
             selected = "all cancer sites"
           ),
 
           selectInput(
             "race",
-            "Select Race:",
+            "Select population race/ethnicity:",
             choices = c(
-              "All Races (includes Hispanic)",
+              "All races/ethnicities (including Hispanic)" =  "All Races (includes Hispanic)",
               "White (non-Hispanic)",
               "Black (non-Hispanic)",
               "American Indian / Alaska Native (non-Hispanic)",
@@ -130,9 +130,9 @@ ui <- dashboardPage(
             "sex",
             "Select sex:",
             choices = c(
-              "both sexes",
-              "males",
-              "females"
+              "Any sex" = "both sexes",
+              "Male" = "males",
+              "Female" = "females"
             ),
             selected = "both sexes"
           ),
@@ -141,13 +141,13 @@ ui <- dashboardPage(
             "age",
             "Select age range:",
             choices = c(
-              "all ages",
-              "ages <50",
-              "ages 50+",
-              "ages <65",
-              "ages 65+",
-              "ages <15",
-              "ages <20"
+              "All ages" = "all ages",
+              "Ages <50" = "ages <50",
+              "Ages 50+" = "ages 50+",
+              "Ages <65" = "ages <65",
+              "Ages 65+" = "ages 65+",
+              "Ages <15" = "ages <15",
+              "Ages <20" = "ages <20"
             ),
             selected = "all ages"
           ),
@@ -156,8 +156,8 @@ ui <- dashboardPage(
             "stage",
             "Select cancer stage:",
             choices = c(
-              "all stages",
-              "late stage (regional & distant)"
+              "All stages" = "all stages",
+              "Late stage (regional & distant)" = "late stage (regional & distant)"
             ),
             selected = "all stages"
           ),
