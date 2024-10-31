@@ -69,10 +69,107 @@ ui <- dashboardPage(
 
     dashboardSidebar(
       sidebarMenu(
+        id = "sidebarid",
+
         # Multiple tabs, each correspond to a different type of map / info
         menuItem(
           "Cancer Incidence by County",
           tabName = "county-incidence"
+        ),
+
+        conditionalPanel(
+          'input.sidebarid == "county-incidence"',
+          # Include input options as well as map generation and reset buttons
+          # Cancer Type
+          selectInput(
+            "cancer_type",
+            "Select cancer subtype of interest:",
+            choices = c(
+              "all cancer sites",
+              "bladder",
+              "brain & ons",
+              "breast (female)",
+              "breast (female in situ)",
+              "cervix",
+              "childhood (ages <15, all sites)",
+              "childhood (ages <20, all sites)",
+              "colon & rectum",
+              "esophagus",
+              "kidney & renal pelvis",
+              "leukemia",
+              "liver & bile duct",
+              "lung & bronchus",
+              "melanoma of the skin",
+              "non-hodgkin lymphoma",
+              "oral cavity & pharynx",
+              "ovary",
+              "pancreas",
+              "prostate",
+              "stomach",
+              "thyroid",
+              "uterus (corpus & uterus, nos)"
+            ),
+            selected = "all cancer sites"
+          ),
+
+          selectInput(
+            "race",
+            "Select Race:",
+            choices = c(
+              "All Races (includes Hispanic)",
+              "White (non-Hispanic)",
+              "Black (non-Hispanic)",
+              "American Indian / Alaska Native (non-Hispanic)",
+              "Asian / Pacific Islander (non-Hispanic)",
+              "Hispanic (Any Race)"
+            ),
+            selected = "All Races (includes Hispanic)"
+          ),
+
+          selectInput(
+            "sex",
+            "Select sex:",
+            choices = c(
+              "both sexes",
+              "males",
+              "females"
+            ),
+            selected = "both sexes"
+          ),
+
+          selectInput(
+            "age",
+            "Select age range:",
+            choices = c(
+              "all ages",
+              "ages <50",
+              "ages 50+",
+              "ages <65",
+              "ages 65+",
+              "ages <15",
+              "ages <20"
+            ),
+            selected = "all ages"
+          ),
+
+          selectInput(
+            "stage",
+            "Select cancer stage:",
+            choices = c(
+              "all stages",
+              "late stage (regional & distant)"
+            ),
+            selected = "all stages"
+          ),
+
+          selectInput(
+            "year",
+            "Select time span:",
+            choices = c(
+              "latest 5 year average"
+            ),
+            selected = "latest 5 year average"
+          )
         ),
 
         menuItem(
@@ -106,104 +203,8 @@ ui <- dashboardPage(
 
       tabItems(
         tabItem(
-          # State incidence tab
+          # County incidence tab
           tabName = "county-incidence",
-          fluidRow(
-            box(
-              # Include input options as well as map generation and reset buttons
-              # Cancer Type
-              selectInput(
-                "cancer_type",
-                "Select cancer subtype of interest:",
-                choices = c(
-                  "all cancer sites",
-                  "bladder",
-                  "brain & ons",
-                  "breast (female)",
-                  "breast (female in situ)",
-                  "cervix",
-                  "childhood (ages <15, all sites)",
-                  "childhood (ages <20, all sites)",
-                  "colon & rectum",
-                  "esophagus",
-                  "kidney & renal pelvis",
-                  "leukemia",
-                  "liver & bile duct",
-                  "lung & bronchus",
-                  "melanoma of the skin",
-                  "non-hodgkin lymphoma",
-                  "oral cavity & pharynx",
-                  "ovary",
-                  "pancreas",
-                  "prostate",
-                  "stomach",
-                  "thyroid",
-                  "uterus (corpus & uterus, nos)"
-                ),
-                selected = "all cancer sites"
-              ),
-
-              selectInput(
-                "race",
-                "Select Race:",
-                choices = c(
-                  "All Races (includes Hispanic)",
-                  "White (non-Hispanic)",
-                  "Black (non-Hispanic)",
-                  "American Indian / Alaska Native (non-Hispanic)",
-                  "Asian / Pacific Islander (non-Hispanic)",
-                  "Hispanic (Any Race)"
-                ),
-                selected = "All Races (includes Hispanic)"
-              ),
-
-              selectInput(
-                "sex",
-                "Select sex:",
-                choices = c(
-                  "both sexes",
-                  "males",
-                  "females"
-                ),
-                selected = "both sexes"
-              ),
-            ),
-            box(
-              selectInput(
-                "age",
-                "Select age range:",
-                choices = c(
-                  "all ages",
-                  "ages <50",
-                  "ages 50+",
-                  "ages <65",
-                  "ages 65+",
-                  "ages <15",
-                  "ages <20"
-                ),
-                selected = "all ages"
-              ),
-
-              selectInput(
-                "stage",
-                "Select cancer stage:",
-                choices = c(
-                  "all stages",
-                  "late stage (regional & distant)"
-                ),
-                selected = "all stages"
-              ),
-
-              selectInput(
-                "year",
-                "Select time span:",
-                choices = c(
-                  "latest 5 year average"
-                ),
-                selected = "latest 5 year average"
-              )
-            )
-          ),
 
           # Show choropleth map
           fluidRow(
@@ -228,7 +229,6 @@ ui <- dashboardPage(
             )
           )
         ),
-
 
         # Tab for background info - TO BE DONE
         tabItem(
