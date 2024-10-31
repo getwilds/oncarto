@@ -166,7 +166,7 @@ ui <- dashboardPage(
             "year",
             "Select time span:",
             choices = c(
-              "latest 5 year average"
+              "Latest 5 year average" = "latest 5 year average"
             ),
             selected = "latest 5 year average"
           )
@@ -232,7 +232,17 @@ ui <- dashboardPage(
 
         # Tab for background info - TO BE DONE
         tabItem(
-          tabName = "background"
+          tabName = "background",
+          # Show contact info
+          fluidRow(
+            column(
+              12,
+              box(
+                width = 12,
+                uiOutput(outputId = "backgroundInfo")
+              )
+            )
+          )
         )
     )
   )
@@ -244,6 +254,14 @@ server <- function(input, output, session) {
     daslWebsite <- a("Data Science Lab (DaSL).", href="https://hutchdatascience.org")
     daslTA <- a("Translational Analytics", href="https://hutchdatascience.org/tr-analytics/")
     daslEmail <- a("analytics@fredhutch.org.", href="mailto:analytics@fredhutch.org")
+
+    output$backgroundInfo <- renderUI({
+      HTML(
+        paste(
+          "Oncarto (Oncology Cartographer) is an R package / Shiny dashboard developed by the Fred Hutch Data Science Lab for the automated integration and visualization of publicly available cancer incidence data for the Fred Hutch Cancer Center catchment area. We aim to develop a robust, open-source cartographic data visualization package from the ground up that can take the data made available by State Cancer Profiles and make it easily accessible by the public."
+        )
+      )
+    })
 
     output$contactInfo <- renderUI({
       HTML(
