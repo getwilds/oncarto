@@ -25,10 +25,10 @@ library(shinythemes)
 library(shinydashboard)
 library(shinycssloaders)
 
+# User-provided parameters for app aesthetics
 # Set aesthetics of app (logo and title)
 source("set-aesthetics.R")
 set_aesthetics()
-
 # Set CSS file path
 css_file_path = "www/hutch_theme.css"
 
