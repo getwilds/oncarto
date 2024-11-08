@@ -27,10 +27,10 @@ library(shinycssloaders)
 
 # User-provided parameters for app aesthetics
 # Set aesthetics of app (logo and title)
-source("set-aesthetics.R")
+source("R/set-aesthetics.R")
 set_aesthetics()
 # Set CSS file path
-css_file_path = "www/hutch_theme.css"
+css_file_path = "R/www/hutch_theme.css"
 
 # Get data that have been previously ingested from SCP
 get_incidence_data <- function() {
@@ -87,95 +87,95 @@ ui <- dashboardPage(
           'input.sidebarid == "county-incidence"',
           # Include input options as well as map generation and reset buttons
           # Cancer Type
-          selectInput(
-            "cancer_type",
-            "Select cancer subtype of interest:",
-            choices = c(
-              "All subtypes" = "all cancer sites",
-              "Bladder" = "bladder",
-              "Brain and other nervous system" = "brain & ons",
-              "Breast (female)" = "breast (female)",
-              "Breast (female in situ)" = "breast (female in situ)",
-              "Cervix" = "cervix",
-              "Childhood (ages <15, all subtypes)" = "childhood (ages <15, all sites)",
-              "Childhood (ages <20, all subtypes)" = "childhood (ages <20, all sites)",
-              "Colon and rectum" = "colon & rectum",
-              "Esophagus" = "esophagus",
-              "Kidney and renal pelvis" = "kidney & renal pelvis",
-              "Leukemia" = "leukemia",
-              "Liver and bile duct" = "liver & bile duct",
-              "Lung and bronchus" = "lung & bronchus",
-              "Melanoma of the skin" = "melanoma of the skin",
-              "Non-hodgkin lymphoma" = "non-hodgkin lymphoma",
-              "Oral cavity and pharynx" = "oral cavity & pharynx",
-              "Ovary" = "ovary",
-              "Pancreas" = "pancreas",
-              "Prostate" = "prostate",
-              "Stomach" = "stomach",
-              "Thyroid" = "thyroid",
-              "Uterus (corpus and not otherwise specified)" = "uterus (corpus & uterus, nos)"
-            ),
-            selected = "all cancer sites"
-          ),
-
-          selectInput(
-            "race",
-            "Select population race/ethnicity:",
-            choices = c(
-              "All races/ethnicities (including Hispanic)" =  "All Races (includes Hispanic)",
-              "White (non-Hispanic)",
-              "Black (non-Hispanic)",
-              "American Indian / Alaska Native (non-Hispanic)",
-              "Asian / Pacific Islander (non-Hispanic)",
-              "Hispanic (Any Race)"
-            ),
-            selected = "All Races (includes Hispanic)"
-          ),
-
-          selectInput(
-            "sex",
-            "Select sex:",
-            choices = c(
-              "Any sex" = "both sexes",
-              "Male" = "males",
-              "Female" = "females"
-            ),
-            selected = "both sexes"
-          ),
-
-          selectInput(
-            "age",
-            "Select age range:",
-            choices = c(
-              "All ages" = "all ages",
-              "Ages <50" = "ages <50",
-              "Ages 50+" = "ages 50+",
-              "Ages <65" = "ages <65",
-              "Ages 65+" = "ages 65+",
-              "Ages <15" = "ages <15",
-              "Ages <20" = "ages <20"
-            ),
-            selected = "all ages"
-          ),
-
-          selectInput(
-            "stage",
-            "Select cancer stage:",
-            choices = c(
-              "All stages" = "all stages",
-              "Late stage (regional & distant)" = "late stage (regional & distant)"
-            ),
-            selected = "all stages"
-          ),
-
-          selectInput(
-            "year",
-            "Select time span:",
-            choices = c(
-              "Latest 5 year average" = "latest 5 year average"
-            ),
-            selected = "latest 5 year average"
-          )
+          # selectInput(
+          #   "cancer_type",
+          #   "Select cancer subtype of interest:",
+          #   choices = c(
+          #     "All subtypes" = "all cancer sites",
+          #     "Bladder" = "bladder",
+          #     "Brain and other nervous system" = "brain & ons",
+          #     "Breast (female)" = "breast (female)",
+          #     "Breast (female in situ)" = "breast (female in situ)",
+          #     "Cervix" = "cervix",
+          #     "Childhood (ages <15, all subtypes)" = "childhood (ages <15, all sites)",
+          #     "Childhood (ages <20, all subtypes)" = "childhood (ages <20, all sites)",
+          #     "Colon and rectum" = "colon & rectum",
+          #     "Esophagus" = "esophagus",
+          #     "Kidney and renal pelvis" = "kidney & renal pelvis",
+          #     "Leukemia" = "leukemia",
+          #     "Liver and bile duct" = "liver & bile duct",
+          #     "Lung and bronchus" = "lung & bronchus",
+          #     "Melanoma of the skin" = "melanoma of the skin",
+          #     "Non-hodgkin lymphoma" = "non-hodgkin lymphoma",
+          #     "Oral cavity and pharynx" = "oral cavity & pharynx",
+          #     "Ovary" = "ovary",
+          #     "Pancreas" = "pancreas",
+          #     "Prostate" = "prostate",
+          #     "Stomach" = "stomach",
+          #     "Thyroid" = "thyroid",
+          #     "Uterus (corpus and not otherwise specified)" = "uterus (corpus & uterus, nos)"
+          #   ),
+          #   selected = "all cancer sites"
+          # ),
+          #
+          # selectInput(
+          #   "race",
+          #   "Select population race/ethnicity:",
+          #   choices = c(
+          #     "All races/ethnicities (including Hispanic)" =  "All Races (includes Hispanic)",
+          #     "White (non-Hispanic)",
+          #     "Black (non-Hispanic)",
+          #     "American Indian / Alaska Native (non-Hispanic)",
+          #     "Asian / Pacific Islander (non-Hispanic)",
+          #     "Hispanic (Any Race)"
+          #   ),
+          #   selected = "All Races (includes Hispanic)"
+          # ),
+          #
+          # selectInput(
+          #   "sex",
+          #   "Select sex:",
+          #   choices = c(
+          #     "Any sex" = "both sexes",
+          #     "Male" = "males",
+          #     "Female" = "females"
+          #   ),
+          #   selected = "both sexes"
+          # ),
+          #
+          # selectInput(
+          #   "age",
+          #   "Select age range:",
+          #   choices = c(
+          #     "All ages" = "all ages",
+          #     "Ages <50" = "ages <50",
+          #     "Ages 50+" = "ages 50+",
+          #     "Ages <65" = "ages <65",
+          #     "Ages 65+" = "ages 65+",
+          #     "Ages <15" = "ages <15",
+          #     "Ages <20" = "ages <20"
+          #   ),
+          #   selected = "all ages"
+          # ),
+          #
+          # selectInput(
+          #   "stage",
+          #   "Select cancer stage:",
+          #   choices = c(
+          #     "All stages" = "all stages",
+          #     "Late stage (regional & distant)" = "late stage (regional & distant)"
+          #   ),
+          #   selected = "all stages"
+          # ),
+          #
+          # selectInput(
+          #   "year",
+          #   "Select time span:",
+          #   choices = c(
+          #     "Latest 5 year average" = "latest 5 year average"
+          #   ),
+          #   selected = "latest 5 year average"
+          # )
         ),
 
         menuItem(
@@ -207,7 +207,102 @@ ui <- dashboardPage(
           # Show choropleth map
           fluidRow(
             column(
-              12,
+              4,
+              box(
+                width = 12,
+                selectInput(
+                  "cancer_type",
+                  "Select cancer subtype of interest:",
+                  choices = c(
+                    "All subtypes" = "all cancer sites",
+                    "Bladder" = "bladder",
+                    "Brain and other nervous system" = "brain & ons",
+                    "Breast (female)" = "breast (female)",
+                    "Breast (female in situ)" = "breast (female in situ)",
+                    "Cervix" = "cervix",
+                    "Childhood (ages <15, all subtypes)" = "childhood (ages <15, all sites)",
+                    "Childhood (ages <20, all subtypes)" = "childhood (ages <20, all sites)",
+                    "Colon and rectum" = "colon & rectum",
+                    "Esophagus" = "esophagus",
+                    "Kidney and renal pelvis" = "kidney & renal pelvis",
+                    "Leukemia" = "leukemia",
+                    "Liver and bile duct" = "liver & bile duct",
+                    "Lung and bronchus" = "lung & bronchus",
+                    "Melanoma of the skin" = "melanoma of the skin",
+                    "Non-hodgkin lymphoma" = "non-hodgkin lymphoma",
+                    "Oral cavity and pharynx" = "oral cavity & pharynx",
+                    "Ovary" = "ovary",
+                    "Pancreas" = "pancreas",
+                    "Prostate" = "prostate",
+                    "Stomach" = "stomach",
+                    "Thyroid" = "thyroid",
+                    "Uterus (corpus and not otherwise specified)" = "uterus (corpus & uterus, nos)"
+                  ),
+                  selected = "all cancer sites"
+                ),
+
+                selectInput(
+                  "race",
+                  "Select population race/ethnicity:",
+                  choices = c(
+                    "All races/ethnicities (including Hispanic)" =  "All Races (includes Hispanic)",
+                    "White (non-Hispanic)",
+                    "Black (non-Hispanic)",
+                    "American Indian / Alaska Native (non-Hispanic)",
+                    "Asian / Pacific Islander (non-Hispanic)",
+                    "Hispanic (Any Race)"
+                  ),
+                  selected = "All Races (includes Hispanic)"
+                ),
+
+                selectInput(
+                  "sex",
+                  "Select sex:",
+                  choices = c(
+                    "Any sex" = "both sexes",
+                    "Male" = "males",
+                    "Female" = "females"
+                  ),
+                  selected = "both sexes"
+                ),
+
+                selectInput(
+                  "age",
+                  "Select age range:",
+                  choices = c(
+                    "All ages" = "all ages",
+                    "Ages <50" = "ages <50",
+                    "Ages 50+" = "ages 50+",
+                    "Ages <65" = "ages <65",
+                    "Ages 65+" = "ages 65+",
+                    "Ages <15" = "ages <15",
+                    "Ages <20" = "ages <20"
+                  ),
+                  selected = "all ages"
+                ),
+
+                selectInput(
+                  "stage",
+                  "Select cancer stage:",
+                  choices = c(
+                    "All stages" = "all stages",
+                    "Late stage (regional & distant)" = "late stage (regional & distant)"
+                  ),
+                  selected = "all stages"
+                ),
+
+                selectInput(
+                  "year",
+                  "Select time span:",
+                  choices = c(
+                    "Latest 5 year average" = "latest 5 year average"
+                  ),
+                  selected = "latest 5 year average"
+                )
+              )
+            ),
+            column(
+              8,
               box(
                 width = 12,
                 uiOutput("map_message"),
