@@ -27,10 +27,12 @@ library(shinycssloaders)
 
 # User-provided parameters for app aesthetics
 # Set aesthetics of app (logo and title)
-source("R/set-aesthetics.R")
+#source("R/set-aesthetics.R")
+source("set-aesthetics.R")
 set_aesthetics()
 # Set CSS file path
-css_file_path = "R/www/hutch_theme.css"
+#css_file_path = "R/www/hutch_theme.css"
+css_file_path = "www/hutch_theme.css"
 
 # Get data that have been previously ingested from SCP
 get_incidence_data <- function() {
