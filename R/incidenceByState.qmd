@@ -330,8 +330,8 @@ merge_all_incidence <- function(cancer_types, race, sex, age, stage, year, con){
 }
 ```
 
-
 # Step 1. Ingest incidence data from {cancerprof}
+
 ```{r}
 # Create a new DuckDB database, corresponding to incidence data from US states
 con <- dbConnect(duckdb::duckdb(), "cancer-incidence-usa-state.duckdb")
@@ -359,7 +359,6 @@ for (cancer in cancer_types) {
 dbListTables(con)
 ```
 
-
 # Step 2. Merge DB data into a wide table
 
 ```{r}
@@ -374,8 +373,6 @@ incidence_by_cancer_type = merge_all_incidence(
 # Disconnect from the database
 dbDisconnect(con)
 ```
-
-
 
 # Step 3. Visualize incidence data in a choropleth map
 
@@ -442,5 +439,3 @@ leaflet(incidence_by_type_with_shape) %>%
     title = "Cancer Incidence (All Sites)"
   )
 ```
-
-
