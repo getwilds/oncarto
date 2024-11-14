@@ -8,3 +8,4 @@ renv/staging/
 renv/cache/
 inst/doc
 .Rprofile
+.Renviron
