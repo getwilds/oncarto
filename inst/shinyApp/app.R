@@ -55,6 +55,7 @@ get_incidence_data <- function() {
 
 incidence_data <- get_incidence_data()
 
+## TODO: come back to this
 # Get county boundaries for the choropleth visualization using the tigris package
 wa_counties_sf <- st_transform(
   tigris::counties(state = "WA", class = "sf"),
