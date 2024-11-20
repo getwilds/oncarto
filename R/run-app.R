@@ -5,14 +5,16 @@
 #' @param logo_width Width of logo in pixels
 #' @param logo_height Height of logo in pixels
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
-#' @param get_data A function that returns a dataframe according to the name
+#' @param get_data_fn A function that returns a dataframe according to the name
 #' (a string) specified by the first argument
 #' @importFrom shiny shinyApp moduleServer
 #' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
 #'
+
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
-                    get_data) {
+                    get_data_fn, data_table_name, state_abbr) {
+
   shiny::shinyApp(
 
     ui = dashboardPage(
@@ -29,9 +31,10 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
     ),
 
     server = function(input, output, session) {
-      server_county_incidence("incidence")
+      server_county_incidence(id = "incidence", get_data_fn, data_table_name, state_abbr)
       server_background("background")
     }
+
   )
 }
 

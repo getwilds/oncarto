@@ -4,18 +4,19 @@
 #' @importFrom shiny renderUI moduleServer
 #' @importFrom leaflet renderLeaflet
 #'
-server_county_incidence <- function(id) {
-  moduleServer(id, function(input, output, session){
+server_county_incidence <- function(id, func_to_apply, data_table_name, state_abbr) {
 
-    output$choropleth <- renderLeaflet({
-      NULL
-    })
+  source("./inst/get-data.R")
+  input_data <- get_data(data_table_name)
 
-    output$map_message <- renderUI({
-      NULL
-    })
+  #print(func_to_apply)
+  #input_data <- func_to_apply(data_table_name)
 
-    output$contact_information <- renderUI({
+  county_boundaries <- get_county_boundaries(state_abbr)
+
+  shiny::moduleServer(id, function(input, output, session){
+
+    output$contact_information <- shiny::renderUI({
       HTML(
         paste(
           "This application was developed by the ",
@@ -27,6 +28,14 @@ server_county_incidence <- function(id) {
           "."
         )
       )
+    })
+
+    output$choropleth <- leaflet::renderLeaflet({
+      NULL
+    })
+
+    output$map_message <- shiny::renderUI({
+      NULL
     })
 
   })
