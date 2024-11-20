@@ -6,11 +6,11 @@
 #'
 server_county_incidence <- function(id, func_to_apply, data_table_name, state_abbr) {
 
-  source("./inst/get-data.R")
-  input_data <- get_data(data_table_name)
+  #source("./inst/get-data.R")
+  #input_data <- get_data(data_table_name)
 
-  #print(func_to_apply)
-  #input_data <- func_to_apply(data_table_name)
+  func <- get(func_to_apply)
+  input_data <- func(data_table_name)
 
   county_boundaries <- get_county_boundaries(state_abbr)
 

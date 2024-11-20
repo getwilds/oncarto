@@ -31,7 +31,7 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
     ),
 
     server = function(input, output, session) {
-      server_county_incidence(id = "incidence", get_data_fn, data_table_name, state_abbr)
+      server_county_incidence("incidence", get_data_fn, data_table_name, state_abbr)
       server_background("background")
     }
 
