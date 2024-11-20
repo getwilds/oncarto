@@ -61,6 +61,17 @@ ui_county_incidence <- function(id) {
           #withSpinner(leafletOutput("choropleth"))
         )
       )
+    ),
+
+    fluidRow(
+      column(
+        12,
+        box(
+          width = 12,
+          #uiOutput(outputId = "contactInfo")
+          uiOutput("")
+        )
+      )
     )
   )
 }
