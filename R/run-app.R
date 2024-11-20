@@ -21,7 +21,8 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
         shiny::includeCSS(css),
         set_title(title),
         shinydashboard::tabItems(
-          ui_county_incidence("incidence")
+          ui_county_incidence("incidence"),
+          ui_background("background")
         )
       )
     ),
