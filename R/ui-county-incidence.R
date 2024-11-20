@@ -1,6 +1,8 @@
 #' This function specifies the UI for the county incidence tab of the app.
 #' @importFrom shinydashboard tabItem box
-#' @importFrom shiny fluidRow column selectInput NS
+#' @importFrom shiny fluidRow column selectInput NS uiOutput
+#' @importFrom shinycssloaders withSpinner
+#' @importFrom leaflet leafletOutput
 #'
 ui_county_incidence <- function(id) {
   tabItem(
@@ -46,6 +48,17 @@ ui_county_incidence <- function(id) {
             "Select time span:",
             choices = years
           )
+        )
+      ),
+
+      column(
+        8,
+        box(
+          width = 12,
+          uiOutput(""),
+          #uiOutput("map_message"),
+          shinycssloaders::withSpinner(leaflet::leafletOutput(""))
+          #withSpinner(leafletOutput("choropleth"))
         )
       )
     )

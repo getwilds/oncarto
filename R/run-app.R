@@ -17,14 +17,13 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
     ui = dashboardPage(
       oncarto_header(title, logo_src, logo_href, logo_width, logo_height),
       oncarto_sidebar(),
-      dashboardBody(
+      dashboardBody( # maybe replace with a new oncarto_body()?
         shiny::includeCSS(css),
         set_title(title),
         shinydashboard::tabItems(
           ui_county_incidence("incidence")
         )
       )
-      #oncarto_body()
     ),
 
     server = function(input, output) {
