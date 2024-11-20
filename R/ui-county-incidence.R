@@ -10,10 +10,41 @@ ui_county_incidence <- function(id) {
         4,
         box(
           width = 12,
+
           selectInput(
             NS(id, "cancer_type"),
             "Select cancer subtype of interest:",
             choices = cancer_types
+          ),
+
+          selectInput(
+            NS(id, "race"),
+            "Select population race/ethnicity:",
+            choices = races
+          ),
+
+          selectInput(
+            NS(id, "sex"),
+            "Select sex:",
+            choices = sexes
+          ),
+
+          selectInput(
+            NS(id, "age"),
+            "Select age range:",
+            choices = ages
+          ),
+
+          selectInput(
+            NS(id, "stage"),
+            "Select cancer stage:",
+            choices = stages
+          ),
+
+          selectInput(
+            NS(id, "year"),
+            "Select time span:",
+            choices = years
           )
         )
       )
