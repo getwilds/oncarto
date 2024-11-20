@@ -1,6 +1,6 @@
-#' This function specifies the UI for the county incidence tab of the app.
+#' This function specifies the UI for the background tab of the app.
 #' @importFrom shinydashboard tabItem box
-#' @importFrom shiny fluidRow column selectInput NS uiOutput
+#' @importFrom shiny fluidRow column NS uiOutput
 #'
 ui_background <- function(id) {
   tabItem(
