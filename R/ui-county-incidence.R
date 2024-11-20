@@ -55,10 +55,14 @@ ui_county_incidence <- function(id) {
         8,
         box(
           width = 12,
-          uiOutput(NS(id, "map_message")),
-          #uiOutput("map_message"),
-          shinycssloaders::withSpinner(leaflet::leafletOutput(NS(id, "choropleth")))
-          #withSpinner(leafletOutput("choropleth"))
+          uiOutput(
+            NS(id, "map_message")
+          ),
+          shinycssloaders::withSpinner(
+            leaflet::leafletOutput(
+              NS(id, "choropleth")
+            )
+          )
         )
       )
     ),

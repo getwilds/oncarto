@@ -1,4 +1,5 @@
-#' This function specifies the UI for the background tab of the app.
+#' This function specifies the server logic for the county incidence tab of the
+#' app.
 #' @importFrom shinydashboard tabItem box
 #' @importFrom shiny fluidRow column NS uiOutput
 #'

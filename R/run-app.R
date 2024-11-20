@@ -7,13 +7,14 @@
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
 #' @param get_data A function that returns a dataframe according to the name
 #' (a string) specified by the first argument
-#' @importFrom shiny shinyApp
+#' @importFrom shiny shinyApp moduleServer
 #' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
 #'
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
                     get_data) {
   shiny::shinyApp(
+
     ui = dashboardPage(
       oncarto_header(title, logo_src, logo_href, logo_width, logo_height),
       oncarto_sidebar(),
@@ -27,8 +28,9 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
       )
     ),
 
-    server = function(input, output) {
-
+    server = function(input, output, session) {
+      #server_county_incidence("incidence")
+      server_background("background")
     }
   )
 }
