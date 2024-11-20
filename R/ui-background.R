@@ -10,7 +10,7 @@ ui_background <- function(id) {
         12,
         box(
           width = 12,
-          uiOutput("")
+          uiOutput(NS(id, "backgroundInfo"))
           #uiOutput(outputId = "backgroundInfo")
         )
       )
