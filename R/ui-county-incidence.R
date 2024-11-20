@@ -72,8 +72,9 @@ ui_county_incidence <- function(id) {
         12,
         box(
           width = 12,
-          #uiOutput(outputId = "contactInfo")
-          uiOutput("")
+          uiOutput(
+            NS(id, "contact_information")
+          )
         )
       )
     )

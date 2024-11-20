@@ -1,21 +1,33 @@
 #' This function specifies the server logic for the county incidence tab of the
 #' app.
-#' @importFrom shinydashboard tabItem box
-#' @importFrom shiny fluidRow column NS uiOutput
 #'
-ui_background <- function(id) {
-  tabItem(
-    tabName = "background",
-    fluidRow(
-      column(
-        12,
-        box(
-          width = 12,
-          uiOutput(
-            NS(id, "backgroundInfo")
-          )
+#' @importFrom shiny renderUI moduleServer
+#' @importFrom leaflet renderLeaflet
+#'
+server_county_incidence <- function(id) {
+  moduleServer(id, function(input, output, session){
+
+    output$choropleth <- renderLeaflet({
+      NULL
+    })
+
+    output$map_message <- renderUI({
+      NULL
+    })
+
+    output$contact_information <- renderUI({
+      HTML(
+        paste(
+          "This application was developed by the ",
+          organization,
+          ". For questions or feedback regarding this application, email ",
+          team,
+          " at ",
+          team_email,
+          "."
         )
       )
-    )
-  )
+    })
+
+  })
 }
