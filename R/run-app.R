@@ -8,19 +8,19 @@
 #' @param get_data A function that returns a dataframe according to the name
 #' (a string) specified by the first argument
 #' @importFrom shiny shinyApp
-#' @importFrom shinydashboard dashboardPage dashboardBody
+#' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
 #'
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
                     get_data) {
-  shinyApp(
+  shiny::shinyApp(
     ui = dashboardPage(
       oncarto_header(title, logo_src, logo_href, logo_width, logo_height),
       oncarto_sidebar(),
       dashboardBody(
-        includeCSS(css),
+        shiny::includeCSS(css),
         set_title(title),
-        tabItems(
+        shinydashboard::tabItems(
           ui_county_incidence("incidence")
         )
       )
