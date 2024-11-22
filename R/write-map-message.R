@@ -1,4 +1,4 @@
-#' Filter input data by chosen values of selectInputs
+# Filter input data by chosen values of selectInputs
 #' @importFrom shiny renderUI
 #'
 write_map_message <- function(filtered_data) {

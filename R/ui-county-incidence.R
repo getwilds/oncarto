@@ -1,4 +1,4 @@
-#' This function specifies the UI for the county incidence tab of the app.
+# This function specifies the UI for the county incidence tab of the app.
 #' @importFrom shinydashboard tabItem box
 #' @importFrom shiny fluidRow column selectInput NS uiOutput
 #' @importFrom shinycssloaders withSpinner

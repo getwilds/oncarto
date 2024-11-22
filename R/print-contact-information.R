@@ -1,4 +1,4 @@
-#' Print contact information for the developers of the app
+# Print contact information for the developers of the app
 #' @importFrom shiny renderUI
 #'
 print_contact_information <- function(organization, team, team_email) {

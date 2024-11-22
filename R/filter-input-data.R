@@ -1,4 +1,4 @@
-#' Filter input data by chosen values of selectInputs
+# Filter input data by chosen values of selectInputs
 #' @importFrom dplyr filter
 #'
 filter_input_data <- function(input_data, cancer_type, race, sex, age, stage, year) {

@@ -1,5 +1,5 @@
-#' Specify app title from set-aesthetics.R
-#' @param title Title of app
+# Specify app title from set-aesthetics.R
+# @param title Title of app
 #' @importFrom htmltools tags HTML
 #'
 set_title <- function(title){
