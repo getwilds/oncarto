@@ -22,6 +22,9 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
                                                   input$race, input$sex,
                                                   input$age, input$stage,
                                                   input$year)
+
+      write_map_message(county_level_incidence)
+
       NULL
     })
 
