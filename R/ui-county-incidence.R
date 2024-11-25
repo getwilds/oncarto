@@ -5,6 +5,10 @@
 #' @importFrom leaflet leafletOutput
 #'
 ui_county_incidence <- function(id) {
+  organization <- a("Fred Hutch Data Science Lab (DaSL)", href = "https://hutchdatascience.org")
+  team <- a("DaSL Translational Analytics", href = "https://hutchdatascience.org/tr-analytics/")
+  team_email <- a("analytics@fredhutch.org", href = "mailto:analytics@fredhutch.org")
+
   tabItem(
     tabName = "county-incidence",
     fluidRow(
@@ -72,8 +76,16 @@ ui_county_incidence <- function(id) {
         12,
         box(
           width = 12,
-          uiOutput(
-            NS(id, "contact_information")
+          HTML(
+            paste(
+              "This application was developed by the ",
+              organization,
+              ". For questions or feedback regarding this application, email ",
+              team,
+              " at ",
+              team_email,
+              "."
+            )
           )
         )
       )

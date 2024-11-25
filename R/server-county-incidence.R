@@ -14,9 +14,6 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
 
     county_boundaries <- get_county_boundaries(state_abbr)
 
-    output$contact_information <- print_contact_information(organization, team,
-                                                            team_email)
-
     output$choropleth <- leaflet::renderLeaflet({
       # county_level_incidence <- filter_input_data(input_data, input$cancer_type,
       #                                             input$race, input$sex,
