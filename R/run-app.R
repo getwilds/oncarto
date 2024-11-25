@@ -7,6 +7,9 @@
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
 #' @param get_data_fn A function that returns a dataframe according to the name
 #' (a string) specified by the first argument
+#' @param data_table_name Name of the table to be accessed by get_data_fn()
+#' @param state_abbr State abbreviation for the U.S. state of interest for
+#' for county-level information (e.g. 'WA')
 #' @importFrom shiny shinyApp moduleServer
 #' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
