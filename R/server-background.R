@@ -3,8 +3,5 @@
 #'
 server_background <- function(id) {
   moduleServer(id, function(input, output, session){
-    output$backgroundInfo <- renderUI({
-      HTML(paste(background))
-    })
   })
 }
