@@ -1,4 +1,4 @@
-#' Get the right county boundaries for the desired choropleth visualization
+# Get the right county boundaries for the desired choropleth visualization
 #' @importFrom tigris counties
 #' @importFrom sf st_transform
 #' @importFrom dplyr mutate

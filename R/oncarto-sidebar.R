@@ -1,4 +1,4 @@
-#' This function fills in the sidebar of the shiny dashboard
+# This function fills in the sidebar of the shiny dashboard
 #' @importFrom shinydashboard dashboardSidebar sidebarMenu menuItem
 #'
 oncarto_sidebar <- function() {

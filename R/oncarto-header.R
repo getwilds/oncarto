@@ -1,4 +1,4 @@
-#' This function fills in the header of the shiny dashboard
+# This function fills in the header of the shiny dashboard
 #' @importFrom shinydashboard dashboardHeader
 #' @importFrom htmltools tags
 #'

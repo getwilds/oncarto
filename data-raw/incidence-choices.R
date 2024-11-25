@@ -62,5 +62,5 @@ years = c(
 )
 
 usethis::use_data(cancer_types, races, sexes, ages, stages, years,
-                  overwrite = TRUE, internal = FALSE)
+                  overwrite = TRUE, internal = TRUE)
 
