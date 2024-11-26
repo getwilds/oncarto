@@ -3,7 +3,6 @@
 export(run_app)
 importFrom(dplyr,filter)
 importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
 importFrom(htmltools,HTML)
 importFrom(htmltools,a)
 importFrom(htmltools,tags)
