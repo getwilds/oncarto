@@ -2,8 +2,6 @@
 # app.
 #
 #' @importFrom shiny renderUI moduleServer
-#' @importFrom leaflet renderLeaflet colorNumeric leaflet addTiles addPolygons
-#'  addLegend labelOptions highlightOptions
 #' @importFrom dplyr filter left_join
 #'
 server_county_incidence <- function(id, func_to_apply, data_table_name,
@@ -25,12 +23,9 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
     output$choropleth <- leaflet::renderLeaflet({
       # Filter the incidence data by the input parameters
       county_level_incidence <- input_data |>
-        dplyr::filter(cancer_type == input$cancer_type) |>
-        dplyr::filter(race == input$race) |>
-        dplyr::filter(sex == input$sex) |>
-        dplyr::filter(age == input$age) |>
-        dplyr::filter(stage == input$stage) |>
-        dplyr::filter(year == input$year)
+        dplyr::filter(cancer_type == input$cancer_type, race == input$race,
+                      sex == input$sex, age == input$age, stage == input$stage,
+                      year == input$year)
 
       # If data do not exist for this combination of inputs, print a warning and
       # return NULL instead of a map
