@@ -1,5 +1,6 @@
 # Make the choropleth map
-#' @importFrom leaflet leaflet addTiles addPolygons addLegend
+#' @importFrom leaflet leaflet addTiles addPolygons addLegend labelOptions
+#' highlightOptions
 #'
 make_leaflet <- function(in_data, in_palette, incidence_col_name,
                          county_col_name, legend_title) {
@@ -15,7 +16,7 @@ make_leaflet <- function(in_data, in_palette, incidence_col_name,
       color = "white",
       dashArray = "3",
       fillOpacity = 0.7,
-      highlightOptions = highlightOptions(
+      highlightOptions = leaflet::highlightOptions(
         weight = 3,
         color = "#666",
         dashArray = "",
