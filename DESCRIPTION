@@ -45,7 +45,6 @@ Imports:
     shiny,
     shinycssloaders,
     shinydashboard,
-    shinythemes,
     tigris
 Depends: 
     R (>= 2.10)
