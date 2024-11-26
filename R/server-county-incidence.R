@@ -54,7 +54,8 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
                             "transparent")
 
         # Make the leaflet map
-        make_leaflet(county_level_incidence_with_shape, pal)
+        make_leaflet(county_level_incidence_with_shape, pal, incidence_col_name,
+                     county_col_name, "Age-Adjusted Incidence Rate")
       }
     })
   })

@@ -1,12 +1,15 @@
 # Make the choropleth map
 #' @importFrom leaflet leaflet addTiles addPolygons addLegend
 #'
-make_leaflet <- function(in_data, in_palette) {
+make_leaflet <- function(in_data, in_palette, incidence_col_name,
+                         county_col_name, legend_title) {
 
   leaflet::leaflet(data = in_data) |>
     leaflet::addTiles() |>
     leaflet::addPolygons(
-      fillColor = ~in_palette(Age_Adjusted_Incidence_Rate),
+      fillColor = ~in_palette(
+        in_data[[incidence_col_name]]
+      ),
       weight = 1,
       opacity = 1,
       color = "white",
@@ -19,7 +22,8 @@ make_leaflet <- function(in_data, in_palette) {
         fillOpacity = 0.7,
         bringToFront = TRUE
       ),
-      label = ~paste(County, ": ", Age_Adjusted_Incidence_Rate),
+      label = ~paste(in_data[[county_col_name]], ": ",
+                     in_data[[incidence_col_name]]),
       labelOptions = labelOptions(
         style = list("font-weight" = "normal", padding = "3px 8px"),
         textsize = "15px",
@@ -28,9 +32,9 @@ make_leaflet <- function(in_data, in_palette) {
     ) |>
     leaflet::addLegend(
       pal = in_palette,
-      values = ~Age_Adjusted_Incidence_Rate,
+      values = ~in_data[[incidence_col_name]],
       opacity = 0.7,
-      title = "Age-Adjusted Cancer Incidence Rate",
+      title = legend_title,
       position = "topright"
     )
 }
