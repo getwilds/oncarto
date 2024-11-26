@@ -1,7 +1,6 @@
 # Get the right county boundaries for the desired choropleth visualization
 #' @importFrom tigris counties
 #' @importFrom sf st_transform
-#' @importFrom dplyr mutate
 #'
 get_county_boundaries <- function(state_abbr, county_col_name) {
   # Get county boundaries for the choropleth visualization using the tigris package

@@ -10,72 +10,72 @@ ui_county_incidence <- function(id) {
   team <- htmltools::a("DaSL Translational Analytics", href = "https://hutchdatascience.org/tr-analytics/")
   team_email <- htmltools::a("analytics@fredhutch.org", href = "mailto:analytics@fredhutch.org")
 
-  tabItem(
+  shinydashboard::tabItem(
     tabName = "county-incidence",
-    fluidRow(
-      column(
+    shiny::fluidRow(
+      shiny::column(
         4,
-        box(
+        shinydashboard::box(
           width = 12,
 
-          selectInput(
-            NS(id, "cancer_type"),
+          shiny::selectInput(
+            shiny::NS(id, "cancer_type"),
             "Select cancer subtype of interest:",
             choices = cancer_types
           ),
 
-          selectInput(
-            NS(id, "race"),
+          shiny::selectInput(
+            shiny::NS(id, "race"),
             "Select population race/ethnicity:",
             choices = races
           ),
 
-          selectInput(
-            NS(id, "sex"),
+          shiny::selectInput(
+            shiny::NS(id, "sex"),
             "Select sex:",
             choices = sexes
           ),
 
-          selectInput(
-            NS(id, "age"),
+          shiny::selectInput(
+            shiny::NS(id, "age"),
             "Select age range:",
             choices = ages
           ),
 
-          selectInput(
-            NS(id, "stage"),
+          shiny::selectInput(
+            shiny::NS(id, "stage"),
             "Select cancer stage:",
             choices = stages
           ),
 
-          selectInput(
-            NS(id, "year"),
+          shiny::selectInput(
+            shiny::NS(id, "year"),
             "Select time span:",
             choices = years
           )
         )
       ),
 
-      column(
+      shiny::column(
         8,
-        box(
+        shinydashboard::box(
           width = 12,
-          uiOutput(
-            NS(id, "map_message")
+          shiny::uiOutput(
+            shiny::NS(id, "map_message")
           ),
           shinycssloaders::withSpinner(
             leaflet::leafletOutput(
-              NS(id, "choropleth")
+              shiny::NS(id, "choropleth")
             )
           )
         )
       )
     ),
 
-    fluidRow(
-      column(
+    shiny::fluidRow(
+      shiny::column(
         12,
-        box(
+        shinydashboard::box(
           width = 12,
           HTML(
             paste(

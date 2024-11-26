@@ -3,8 +3,8 @@
 #' @importFrom htmltools tags HTML
 #'
 set_title <- function(title){
-  tags$script(
-    HTML(
+  htmltools::tags$script(
+    htmltools::HTML(
       paste0(
         '$(document).ready(function() { $("header").find("nav").append(\'<span class="dashboard-title"> ',
         title,
