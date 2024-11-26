@@ -3,11 +3,12 @@
 #' @importFrom shiny fluidRow column selectInput NS uiOutput
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom leaflet leafletOutput
+#' @importFrom htmltools a
 #'
 ui_county_incidence <- function(id) {
-  organization <- a("Fred Hutch Data Science Lab (DaSL)", href = "https://hutchdatascience.org")
-  team <- a("DaSL Translational Analytics", href = "https://hutchdatascience.org/tr-analytics/")
-  team_email <- a("analytics@fredhutch.org", href = "mailto:analytics@fredhutch.org")
+  organization <- htmltools::a("Fred Hutch Data Science Lab (DaSL)", href = "https://hutchdatascience.org")
+  team <- htmltools::a("DaSL Translational Analytics", href = "https://hutchdatascience.org/tr-analytics/")
+  team_email <- htmltools::a("analytics@fredhutch.org", href = "mailto:analytics@fredhutch.org")
 
   tabItem(
     tabName = "county-incidence",

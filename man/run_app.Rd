@@ -31,6 +31,11 @@ run_app(
 
 \item{get_data_fn}{A function that returns a dataframe according to the name
 (a string) specified by the first argument}
+
+\item{data_table_name}{Name of the table to be accessed by get_data_fn()}
+
+\item{state_abbr}{State abbreviation for the U.S. state of interest for
+for county-level information (e.g. 'WA')}
 }
 \description{
 This function runs the Shiny app packaged within this R package.
