@@ -15,6 +15,9 @@
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
                     get_data_fn) {
 
+  addResourcePath(prefix = "img", directoryPath = dirname(logo_src))
+  logo_src <- file.path("img", basename(logo_src))
+
   shiny::shinyApp(
 
     ui = shinydashboard::dashboardPage(
