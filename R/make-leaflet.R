@@ -24,7 +24,7 @@ make_leaflet <- function(in_data, in_palette, incidence_col_name,
       ),
       label = ~paste(in_data[[county_col_name]], ": ",
                      in_data[[incidence_col_name]]),
-      labelOptions = labelOptions(
+      labelOptions = leaflet::labelOptions(
         style = list("font-weight" = "normal", padding = "3px 8px"),
         textsize = "15px",
         direction = "auto"

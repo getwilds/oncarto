@@ -46,7 +46,7 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
 
         # Join the cancer data with counties boundaries based on county name
         county_level_incidence_with_shape <- county_boundaries |>
-          left_join(county_level_incidence, by = county_col_name)
+          dplyr::left_join(county_level_incidence, by = county_col_name)
 
         # Generate color palette based on the selected cancer data
         pal <- make_palette(county_level_incidence_with_shape,
