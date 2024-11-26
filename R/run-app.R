@@ -7,16 +7,13 @@
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
 #' @param get_data_fn A function that returns a dataframe according to the name
 #' (a string) specified by the first argument
-#' @param data_table_name Name of the table to be accessed by get_data_fn()
-#' @param state_abbr State abbreviation for the U.S. state of interest for
-#' for county-level information (e.g. 'WA')
 #' @importFrom shiny shinyApp moduleServer
 #' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
 #'
 
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
-                    get_data_fn, data_table_name, state_abbr) {
+                    get_data_fn) {
 
   shiny::shinyApp(
 
@@ -34,7 +31,11 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
     ),
 
     server = function(input, output, session) {
-      server_county_incidence("incidence", get_data_fn, data_table_name, state_abbr)
+      # WA County Incidence
+      server_county_incidence("incidence", get_data_fn, "wa_county_incidence",
+                              "WA", "Age_Adjusted_Incidence_Rate", "County")
+
+      # Background Information
       server_background("background")
     }
 
