@@ -35,7 +35,8 @@ RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Imports:
     dplyr,
@@ -48,3 +49,4 @@ Imports:
     tigris
 Depends: 
     R (>= 2.10)
+Config/testthat/edition: 3
