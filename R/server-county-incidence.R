@@ -37,7 +37,7 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
       # Otherwise, do not print a warning, and return the map
       else {
         # Set warning message to NULL
-        output$map_message <- NULL#renderUI({NULL})
+        output$map_message <- NULL
 
         # Join the cancer data with counties boundaries based on county name
         county_level_incidence_with_shape <- county_boundaries |>
