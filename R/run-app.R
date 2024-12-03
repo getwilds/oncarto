@@ -7,7 +7,7 @@
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
 #' @param get_data_fn A function that returns a dataframe according to the name
 #' (a string) specified by the first argument
-#' @importFrom shiny shinyApp
+#' @importFrom shiny shinyApp addResourcePath
 #' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
 #'
@@ -15,7 +15,7 @@
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
                     get_data_fn) {
 
-  addResourcePath(prefix = "img", directoryPath = dirname(logo_src))
+  shiny::addResourcePath(prefix = "img", directoryPath = dirname(logo_src))
   logo_src <- file.path("img", basename(logo_src))
 
   shiny::shinyApp(

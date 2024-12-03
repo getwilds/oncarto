@@ -331,14 +331,8 @@ year_options = c(
 cancer_types = c(
   "all cancer sites",
   "breast (female)",
-  "breast (female in situ)",
-  "cervix",
   "childhood (ages <15, all sites)",
-  "childhood (ages <20, all sites)",
-  "ovary",
-  "prostate",
-  "thyroid",
-  "uterus (corpus & uterus, nos)"
+  "prostate"
 )
 
 race_options = c(
@@ -353,8 +347,7 @@ sex_options = c(
 
 age_options = c(
   "all ages",
-  "ages <15",
-  "ages <20"
+  "ages <15"
 )
 
 stage_options = c(
