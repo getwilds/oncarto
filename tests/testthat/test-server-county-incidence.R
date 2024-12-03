@@ -7,6 +7,8 @@ test_that("multiplication works", {
   expect_equal(2 * 2, 4)
 })
 
+source("get-data.R")
+
 # https://shiny.posit.co/r/articles/improve/server-function-testing/
 # https://r-pkgs.org/testing-advanced.html#test-fixtures
 # https://mastering-shiny.org/scaling-testing.html
@@ -24,7 +26,7 @@ shiny::testServer(server_county_incidence,
 
 # Test that map shows up with female-specific cancer
 shiny::testServer(server_county_incidence,
-           args = list("incidence", "get_data", "sample_wa_county_incidence",
+           args = list(id = "incidence", "get_data", "sample_wa_county_incidence",
                        "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
   session$setInputs(cancer_type = "breast (female)", sex = "both sexes")
@@ -42,7 +44,7 @@ shiny::testServer(server_county_incidence,
 
 # Test that map shows up with male-specific cancer
 shiny::testServer(server_county_incidence,
-           args = list("incidence", "get_data", "sample_wa_county_incidence",
+           args = list(id = "incidence", "get_data", "sample_wa_county_incidence",
                        "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
   session$setInputs(cancer_type = "prostate", sex = "both sexes")
@@ -60,7 +62,7 @@ shiny::testServer(server_county_incidence,
 
 # Test that map shows up with the right age-specific input
 shiny::testServer(server_county_incidence,
-           args = list("incidence", "get_data", "sample_wa_county_incidence",
+           args = list(id = "incidence", "get_data", "sample_wa_county_incidence",
                        "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
   session$setInputs(cancer_type = "childhood (ages <15, all sites)",
