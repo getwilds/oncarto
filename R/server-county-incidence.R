@@ -21,38 +21,50 @@ server_county_incidence <- function(id, callback, state_abbr,
 
     input_data <- callback()
 
-    output$choropleth <- leaflet::renderLeaflet({
-      # Filter the incidence data by the input parameters
-      county_level_incidence <- input_data |>
+    # Filter the incidence data by the input parameters
+    county_level_incidence <- shiny::reactive({
+      input_data |>
         dplyr::filter(cancer_type == input$cancer_type, race == input$race,
                       sex == input$sex, age == input$age, stage == input$stage,
                       year == input$year)
-
-      # If data do not exist for this combination of inputs, print a warning and
-      # return NULL instead of a map
-      if (all(is.na(county_level_incidence[[incidence_col_name]]))) {
-        output$map_message <- renderUI({HTML(warning_message)})
-        NULL
-      }
-
-      # Otherwise, do not print a warning, and return the map
-      else {
-        # Set warning message to NULL
-        output$map_message <- NULL
-
-        # Join the cancer data with counties boundaries based on county name
-        county_level_incidence_with_shape <- county_boundaries |>
-          dplyr::left_join(county_level_incidence, by = county_col_name)
-
-        # Generate color palette based on the selected cancer data
-        pal <- make_palette(county_level_incidence_with_shape,
-                            incidence_col_name, "#F4F4F4", "#FFB500",
-                            "transparent")
-
-        # Make the leaflet map
-        make_leaflet(county_level_incidence_with_shape, pal, incidence_col_name,
-                     county_col_name, "Age-Adjusted Incidence Rate")
-      }
     })
+
+
+    # Determine if there is county-level incidence data to visualize
+    filters_too_strict <- shiny::eventReactive(county_level_incidence(), {
+      return(all(is.na(county_level_incidence()[[incidence_col_name]])))
+    })
+
+    shiny::observeEvent(
+      filters_too_strict(),
+      {
+        # If data do not exist for this combination of inputs, print a warning and
+        # return NULL instead of a map
+        if(isTRUE(filters_too_strict())){
+          output$choropleth <- NULL
+          output$map_message <- renderUI({HTML(warning_message)})
+        }
+
+        # Otherwise, do not print a warning, and return the map
+        else {
+          # Set warning message to NULL
+          output$map_message <- NULL
+          output$choropleth <- leaflet::renderLeaflet({
+            # Join the cancer data with counties boundaries based on county name
+            county_level_incidence_with_shape <- county_boundaries |>
+              dplyr::left_join(county_level_incidence(), by = county_col_name)
+
+            # Generate color palette based on the selected cancer data
+            pal <- make_palette(county_level_incidence_with_shape,
+                                incidence_col_name, "#F4F4F4", "#FFB500",
+                                "transparent")
+
+            # Make the leaflet map
+            make_leaflet(county_level_incidence_with_shape, pal, incidence_col_name,
+                         county_col_name, "Age-Adjusted Incidence Rate")
+          })
+        }
+      }
+    )
   })
 }

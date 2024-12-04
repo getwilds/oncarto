@@ -4,7 +4,7 @@
 \alias{run_app}
 \title{This function runs the Shiny app packaged within this R package.}
 \usage{
-run_app(title, logo_src, logo_href, logo_width, logo_height, css, get_data_fn)
+run_app(title, logo_src, logo_href, logo_width, logo_height, css, callback)
 }
 \arguments{
 \item{title}{Title of the application}
@@ -19,8 +19,8 @@ run_app(title, logo_src, logo_href, logo_width, logo_height, css, get_data_fn)
 
 \item{css}{Filepath to the .css file that sets aesthetics for the whole app}
 
-\item{get_data_fn}{A function that returns a dataframe according to the name
-(a string) specified by the first argument}
+\item{callback}{A callback that returns a function that returns the relevant
+data}
 }
 \description{
 This function runs the Shiny app packaged within this R package.
