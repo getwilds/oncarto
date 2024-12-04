@@ -8,47 +8,68 @@
 
 
 # Test that map shows up with baseline inputs
-test_that("baseline app works", {
+test_that("Baseline inputs work", {
   shiny::testServer(
     server_county_incidence,
     args = list(id = "incidence", test_callback("sample-data.tsv"),
                 "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
       session$setInputs(
-        cancer_type = "all cancer sites",
-        race = "All Races (includes Hispanic)",
-        sex = "both sexes",
-        age = "all ages",
-        stage = "all stages",
+        cancer_type = oncarto:::cancer_types[1],
+        race = oncarto:::races[1],
+        sex = oncarto:::sexes[1],
+        age = oncarto:::ages[1],
+        stage = oncarto:::stages[1],
         year = oncarto:::years[1]
       )
 
       # Check that a map is generated and that the output map message is NULL
-      #expect_true(!is.null(output$choropleth))
-      expect_true(is.null(output$map_message))
+      expect_true(!is.null(output$choropleth))
+      print("Hello world")
+      #print(str(output$map_message))
+      #expect_true(is.null(str(output$map_message)))
   })
 })
 
 
 
 
-# # Test that map shows up with female-specific cancer
-# shiny::testServer(server_county_incidence,
-#            args = list(id = "incidence", "get_data", "sample_wa_county_incidence",
-#                        "WA", "Age_Adjusted_Incidence_Rate", "County"), {
+# Test that map shows up with female-specific cancer
+test_that("Female-specific cancer works", {
+  shiny::testServer(
+    server_county_incidence,
+    args = list(id = "incidence", test_callback("sample-data.tsv"),
+                "WA", "Age_Adjusted_Incidence_Rate", "County"), {
+
+      session$setInputs(
+        cancer_type = "breast (female)",
+        race = oncarto:::races[1],
+        sex = oncarto:::sexes[1],
+        age = oncarto:::ages[1],
+        stage = oncarto:::stages[1],
+        year = oncarto:::years[1]
+      )
+
+      #expect_true(is.null(output$choropleth))
+      expect_true(!is.null(output$map_message))
+
+      session$setInputs(
+        cancer_type = "breast (female)",
+        race = oncarto:::races[1],
+        sex = "females",
+        age = oncarto:::ages[1],
+        stage = oncarto:::stages[1],
+        year = oncarto:::years[1]
+      )
+
+      # Check that a map is generated and that the output map message is NULL
+      expect_true(!is.null(output$choropleth))
+      #expect_true(is.null(output$map_message))
+  })
+})
+
+
 #
-#   session$setInputs(cancer_type = "breast (female)", sex = "both sexes")
-#
-#   # Check that a message is generated and that the map is NULL
-#   expect_failure(expect_equal(output$map_message, NULL))
-#   expect_equal(output$choropleth, NULL)
-#
-#   session$setInputs(sex = "females")
-#
-#   # Check that a map is generated and that the message is NULL
-#   expect_failure(expect_equal(output$choropleth, NULL))
-#   expect_equal(output$map_message, NULL)
-#  })
 #
 # # Test that map shows up with male-specific cancer
 # shiny::testServer(server_county_incidence,

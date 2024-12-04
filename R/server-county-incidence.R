@@ -35,12 +35,10 @@ server_county_incidence <- function(id, callback, state_abbr,
       return(all(is.na(county_level_incidence()[[incidence_col_name]])))
     })
 
-    shiny::observeEvent(
-      filters_too_strict(),
-      {
+    shiny::observeEvent(filters_too_strict(),{
         # If data do not exist for this combination of inputs, print a warning and
         # return NULL instead of a map
-        if(isTRUE(filters_too_strict())){
+        if (isTRUE(filters_too_strict())) {
           output$choropleth <- NULL
           output$map_message <- renderUI({HTML(warning_message)})
         }
