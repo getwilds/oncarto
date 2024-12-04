@@ -7,12 +7,33 @@ test_that("multiplication works", {
   expect_equal(2 * 2, 4)
 })
 
+
+get_data <- function(name_of_table) {
+  db_connection <- DBI::dbConnect(
+    RPostgres::Postgres(),
+    host = Sys.getenv("DB_HOST"),
+    dbname = Sys.getenv("DB_NAME"),
+    user = Sys.getenv("DB_USER"),
+    password = Sys.getenv("DB_PASSWORD"),
+    port = Sys.getenv("DB_PORT")
+  )
+
+  on.exit(DBI::dbDisconnect(db_connection))
+
+  DBI::dbReadTable(
+    name = name_of_table,
+    conn = db_connection
+  )
+}
+
+# Write an R file in the R directory that writes this function
 source("get-data.R")
 
 # https://shiny.posit.co/r/articles/improve/server-function-testing/
 # https://r-pkgs.org/testing-advanced.html#test-fixtures
 # https://mastering-shiny.org/scaling-testing.html
 
+system.file(file.path("test", "sample_data.tsv"), package = "oncarto")
 
 # Test that map shows up with baseline inputs
 shiny::testServer(server_county_incidence,

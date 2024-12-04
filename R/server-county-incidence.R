@@ -4,9 +4,8 @@
 #' @importFrom shiny renderUI moduleServer
 #' @importFrom dplyr filter left_join
 #'
-server_county_incidence <- function(id, func_to_apply, data_table_name,
-                                    state_abbr, incidence_col_name,
-                                    county_col_name) {
+server_county_incidence <- function(id, callback, state_abbr,
+                                    incidence_col_name, county_col_name) {
 
   shiny::moduleServer(id, function(input, output, session) {
     # Warning message if map can't be shown
@@ -17,8 +16,10 @@ server_county_incidence <- function(id, func_to_apply, data_table_name,
 
     # Get input cancer incidence data based on the user-provided 'get_data' fn
     # and table name
-    fn_to_get_data <- get(func_to_apply)
-    input_data <- fn_to_get_data(data_table_name)
+    #fn_to_get_data <- get(func_to_apply)
+    #input_data <- fn_to_get_data(data_table_name)
+
+    input_data <- callback()
 
     output$choropleth <- leaflet::renderLeaflet({
       # Filter the incidence data by the input parameters

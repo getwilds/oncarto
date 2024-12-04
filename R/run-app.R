@@ -5,15 +5,15 @@
 #' @param logo_width Width of logo in pixels
 #' @param logo_height Height of logo in pixels
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
-#' @param get_data_fn A function that returns a dataframe according to the name
-#' (a string) specified by the first argument
+#' @param callback A callback that returns a function that returns the relevant
+#'  data
 #' @importFrom shiny shinyApp addResourcePath
 #' @importFrom shinydashboard dashboardPage dashboardBody tabItems
 #' @export
 #'
 
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
-                    get_data_fn) {
+                    callback) {
 
   shiny::addResourcePath(prefix = "img", directoryPath = dirname(logo_src))
   logo_src <- file.path("img", basename(logo_src))
@@ -35,8 +35,8 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
 
     server = function(input, output, session) {
       # WA County Incidence
-      server_county_incidence("incidence", get_data_fn, "wa_county_incidence",
-                              "WA", "Age_Adjusted_Incidence_Rate", "County")
+      server_county_incidence("incidence", callback, "WA",
+                              "Age_Adjusted_Incidence_Rate", "County")
 
       # Background Information
       server_background("background")
