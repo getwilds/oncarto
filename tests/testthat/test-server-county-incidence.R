@@ -2,11 +2,6 @@
 # app.
 #
 
-# https://shiny.posit.co/r/articles/improve/server-function-testing/
-# https://r-pkgs.org/testing-advanced.html#test-fixtures
-# https://mastering-shiny.org/scaling-testing.html
-
-
 # Test that map shows up with baseline inputs
 test_that("Baseline inputs work", {
   shiny::testServer(

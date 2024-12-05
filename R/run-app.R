@@ -13,7 +13,7 @@
 #'
 
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
-                    callback) {
+                    contact_info, callback) {
 
   shiny::addResourcePath(prefix = "img", directoryPath = dirname(logo_src))
   logo_src <- file.path("img", basename(logo_src))
@@ -27,7 +27,7 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
         shiny::includeCSS(css),
         set_title(title),
         shinydashboard::tabItems(
-          ui_county_incidence("incidence"),
+          ui_county_incidence("incidence", contact_info),
           ui_background("background")
         )
       )
