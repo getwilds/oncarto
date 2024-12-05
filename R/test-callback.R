@@ -1,5 +1,5 @@
-# A function that provides the test data for testing. Data must be a .TSV
-#
+# A function that provides the sample data for testing.
+# The sample data must be a saved as a .tsv
 
 test_callback <- function(file_name) {
   function() {
@@ -10,7 +10,3 @@ test_callback <- function(file_name) {
     )
   }
 }
-
-
-#callback <- test_callback("sample-data.tsv", get_data_from_DB())
-#callback()
