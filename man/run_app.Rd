@@ -4,7 +4,16 @@
 \alias{run_app}
 \title{This function runs the Shiny app packaged within this R package.}
 \usage{
-run_app(title, logo_src, logo_href, logo_width, logo_height, css, callback)
+run_app(
+  title,
+  logo_src,
+  logo_href,
+  logo_width,
+  logo_height,
+  css,
+  contact_info,
+  callback
+)
 }
 \arguments{
 \item{title}{Title of the application}
@@ -18,6 +27,9 @@ run_app(title, logo_src, logo_href, logo_width, logo_height, css, callback)
 \item{logo_height}{Height of logo in pixels}
 
 \item{css}{Filepath to the .css file that sets aesthetics for the whole app}
+
+\item{contact_info}{Filepath to a markdown file that includes contact
+information to be displayed at the bottom of the page}
 
 \item{callback}{A callback that returns a function that returns the relevant
 data}

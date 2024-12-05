@@ -1,15 +1,11 @@
 # This function specifies the UI for the county incidence tab of the app.
 #' @importFrom shinydashboard tabItem box
-#' @importFrom shiny fluidRow column selectInput NS uiOutput
+#' @importFrom shiny fluidRow column selectInput NS uiOutput includeMarkdown
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom leaflet leafletOutput
 #' @importFrom htmltools a
 #'
 ui_county_incidence <- function(id, contact_info) {
-  # Contact info should be saved in a markdown file, which is passed as an
-  # argument to runApp(). Keep as is for now - in the future can be a part of
-  # callback
-
   shinydashboard::tabItem(
     tabName = "county-incidence",
     shiny::fluidRow(

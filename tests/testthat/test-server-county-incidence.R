@@ -1,9 +1,8 @@
 # This function specifies the server logic for the county incidence tab of the
 # app.
-#
 
 # Test that map shows up with baseline inputs
-test_that("Baseline inputs work", {
+test_that("Baseline input works", {
   shiny::testServer(
     server_county_incidence,
     args = list(id = "incidence", test_callback("sample-data.tsv"),
@@ -18,11 +17,8 @@ test_that("Baseline inputs work", {
         year = oncarto:::years[1]
       )
 
-      # Check that a map is generated and that the output map message is NULL
+      # Check that a map is generated
       expect_true(!is.null(output$choropleth))
-      print("Hello world")
-      #print(str(output$map_message))
-      #expect_true(is.null(str(output$map_message)))
   })
 })
 
@@ -45,7 +41,6 @@ test_that("Female-specific cancer works", {
         year = oncarto:::years[1]
       )
 
-      #expect_true(is.null(output$choropleth))
       expect_true(!is.null(output$map_message))
 
       session$setInputs(
@@ -57,9 +52,8 @@ test_that("Female-specific cancer works", {
         year = oncarto:::years[1]
       )
 
-      # Check that a map is generated and that the output map message is NULL
+      # Check that a map is generated
       expect_true(!is.null(output$choropleth))
-      #expect_true(is.null(output$map_message))
   })
 })
 
@@ -80,7 +74,6 @@ test_that("Male-specific cancer works", {
         year = oncarto:::years[1]
       )
 
-      #expect_true(is.null(output$choropleth))
       expect_true(!is.null(output$map_message))
 
       session$setInputs(
@@ -92,9 +85,8 @@ test_that("Male-specific cancer works", {
         year = oncarto:::years[1]
       )
 
-      # Check that a map is generated and that the output map message is NULL
+      # Check that a map is generated
       expect_true(!is.null(output$choropleth))
-      #expect_true(is.null(output$map_message))
     })
 })
 
@@ -114,7 +106,6 @@ test_that("Age-specific cancer works", {
         year = oncarto:::years[1]
       )
 
-      #expect_true(is.null(output$choropleth))
       expect_true(!is.null(output$map_message))
 
       session$setInputs(
@@ -128,7 +119,6 @@ test_that("Age-specific cancer works", {
 
       # Check that a map is generated and that the output map message is NULL
       expect_true(!is.null(output$choropleth))
-      #expect_true(is.null(output$map_message))
     })
 })
 

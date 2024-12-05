@@ -5,6 +5,8 @@
 #' @param logo_width Width of logo in pixels
 #' @param logo_height Height of logo in pixels
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
+#' @param contact_info Filepath to a markdown file that includes contact
+#'  information to be displayed at the bottom of the page
 #' @param callback A callback that returns a function that returns the relevant
 #'  data
 #' @importFrom shiny shinyApp addResourcePath
