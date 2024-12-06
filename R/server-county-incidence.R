@@ -9,7 +9,7 @@ server_county_incidence <- function(id, callback, state_abbr,
 
   shiny::moduleServer(id, function(input, output, session) {
     # Warning message if map can't be shown
-    warning_message <- "<h4>No cancer incidence data are available for this specific combination of inputs. Please try a different combination of inputs.</h4>"
+    warning_message <- htmltools::tags$h4("No cancer incidence data are available for this specific combination of inputs. Please try a different combination of inputs.")
 
     # Get the shape file that includes county boundaries for the given US state
     county_boundaries <- get_county_boundaries(state_abbr, county_col_name)
@@ -19,7 +19,7 @@ server_county_incidence <- function(id, callback, state_abbr,
     #fn_to_get_data <- get(func_to_apply)
     #input_data <- fn_to_get_data(data_table_name)
 
-    input_data <- callback()
+    input_data <- callback("county-incidence")
 
     # Filter the incidence data by the input parameters
     county_level_incidence <- shiny::reactive({

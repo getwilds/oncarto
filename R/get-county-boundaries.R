@@ -9,6 +9,6 @@ get_county_boundaries <- function(state_abbr, county_col_name) {
     crs = 4326
   )
 
-  out[[county_col_name]] = out[['NAMELSAD']]
+  out[[county_col_name]] <- out[['NAMELSAD']]
   out
 }
