@@ -5,7 +5,7 @@
 #' @importFrom leaflet leafletOutput
 #' @importFrom htmltools a
 #'
-ui_county_incidence <- function(id, contact_info) {
+ui_county_incidence <- function(id, callback) {
   shinydashboard::tabItem(
     tabName = "county-incidence",
     shiny::fluidRow(
@@ -56,7 +56,7 @@ ui_county_incidence <- function(id, contact_info) {
         8,
         shinydashboard::box(
           width = 12,
-          shiny::uiOutput(
+          shiny::htmlOutput(
             shiny::NS(id, "map_message")
           ),
           shinycssloaders::withSpinner(
@@ -73,7 +73,7 @@ ui_county_incidence <- function(id, contact_info) {
         12,
         shinydashboard::box(
           width = 12,
-          shiny::includeMarkdown(contact_info)
+          shiny::includeMarkdown(callback("contact-info"))
         )
       )
     )
