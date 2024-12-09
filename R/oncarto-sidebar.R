@@ -2,15 +2,18 @@
 #' @importFrom shinydashboard dashboardSidebar sidebarMenu menuItem
 #'
 oncarto_sidebar <- function() {
-  shinydashboard::dashboardSidebar(
-    shinydashboard::sidebarMenu(
+  dashboardSidebar(
+    sidebarMenu(
       # Multiple tabs, each correspond to a different type of map / info
-      shinydashboard::menuItem(
+      menuItem(
         "Cancer Incidence by County",
         tabName = "county-incidence"
       ),
-
-      shinydashboard::menuItem(
+      menuItem(
+        "Customize Map",
+        tabName = "customize-map"
+      ),
+      menuItem(
         "Background",
         tabName = "background"
       )

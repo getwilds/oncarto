@@ -28,18 +28,25 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
         set_title(title),
         shinydashboard::tabItems(
           ui_county_incidence("incidence", callback),
+          ui_customize_map("customize"),
           ui_background("background")
         )
       )
     ),
 
     server = function(input, output, session) {
-      # WA County Incidence
-      server_county_incidence("incidence", callback, "WA",
-                              "Age_Adjusted_Incidence_Rate", "County")
+      county_boundaries <- get_county_boundaries("WA", "County")
 
-      # Background Information
-      server_background("background")
+      county_incidence <- server_county_incidence("incidence", callback)
+
+      # WA County Incidence
+      server_county_map("incidence", callback, "WA",
+                        "Age_Adjusted_Incidence_Rate", "County",
+                        county_boundaries, county_incidence())
+
+      # "choropleth" comes from output$choropleth within incidence
+      # server_customize_map("customize",
+      #                      NS("incidence", "choropleth"), callback)
     }
 
   )

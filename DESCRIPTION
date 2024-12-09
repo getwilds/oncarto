@@ -42,6 +42,7 @@ Imports:
     dplyr,
     htmltools,
     leaflet,
+    RColorBrewer,
     sf,
     shiny,
     shinycssloaders,
