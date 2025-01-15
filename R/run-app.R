@@ -5,8 +5,6 @@
 #' @param logo_width Width of logo in pixels
 #' @param logo_height Height of logo in pixels
 #' @param css Filepath to the .css file that sets aesthetics for the whole app
-#' @param contact_info Filepath to a markdown file that includes contact
-#'  information to be displayed at the bottom of the page
 #' @param callback A callback that returns a function that returns the relevant
 #'  data
 #' @importFrom shiny shinyApp addResourcePath
@@ -15,7 +13,7 @@
 #'
 
 run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
-                    contact_info, callback) {
+                    callback) {
 
   shiny::addResourcePath(prefix = "img", directoryPath = dirname(logo_src))
   logo_src <- file.path("img", basename(logo_src))
@@ -29,7 +27,7 @@ run_app <- function(title, logo_src, logo_href, logo_width, logo_height, css,
         shiny::includeCSS(css),
         set_title(title),
         shinydashboard::tabItems(
-          ui_county_incidence("incidence", contact_info),
+          ui_county_incidence("incidence", callback),
           ui_background("background")
         )
       )

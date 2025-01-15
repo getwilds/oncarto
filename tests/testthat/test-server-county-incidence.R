@@ -5,7 +5,7 @@
 test_that("Baseline input works", {
   shiny::testServer(
     server_county_incidence,
-    args = list(id = "incidence", test_callback("sample-data.tsv"),
+    args = list(id = "incidence", example_callback,
                 "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
       session$setInputs(
@@ -29,7 +29,7 @@ test_that("Baseline input works", {
 test_that("Female-specific cancer works", {
   shiny::testServer(
     server_county_incidence,
-    args = list(id = "incidence", test_callback("sample-data.tsv"),
+    args = list(id = "incidence", example_callback,
                 "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
       session$setInputs(
@@ -62,7 +62,7 @@ test_that("Female-specific cancer works", {
 test_that("Male-specific cancer works", {
   shiny::testServer(
     server_county_incidence,
-    args = list(id = "incidence", test_callback("sample-data.tsv"),
+    args = list(id = "incidence", example_callback,
                 "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
       session$setInputs(
@@ -94,7 +94,7 @@ test_that("Male-specific cancer works", {
 test_that("Age-specific cancer works", {
   shiny::testServer(
     server_county_incidence,
-    args = list(id = "incidence", test_callback("sample-data.tsv"),
+    args = list(id = "incidence", example_callback,
                 "WA", "Age_Adjusted_Incidence_Rate", "County"), {
 
       session$setInputs(
