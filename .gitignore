@@ -3,3 +3,9 @@
 .RData
 .Ruserdata
 .DS_Store
+renv/library/
+renv/staging/
+renv/cache/
+inst/doc
+.Rprofile
+.Renviron

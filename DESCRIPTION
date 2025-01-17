@@ -1,11 +1,52 @@
 Package: oncarto
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Oncology Cartographer
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: 
+    c(person(given = "Vivek",
+           family = "Sriram",
+           email = "vsriram@fredhutch.org",
+           role = c("aut"),
+           comment = c(ORCID = "0000-0003-3759-2911")),
+    person(given = "Sean",
+           family = "Kross",
+           email = "skross@fredhutch.org",
+           role = c("ctb", "cre"),
+           comment = c(ORCID = "0000-0001-5215-0316")),
+    person(given = "Monica",
+           family = "Gerber",
+           email = "mgerber@fredhutch.org",
+           role = c("ctb"),
+           comment = c(ORCID = "0000-0001-9878-9166")),
+    person(given = "Scott",
+           family = "Chamberlain",
+           email = "sachamber@fredhutch.org",
+           role = c("ctb"),
+           comment = c(ORCID = "0000-0003-1444-9135"))
+    )
+Description: Oncarto (Oncology Cartographer) is an R package / Shiny dashboard
+    developed by the Fred Hutch Data Science Lab (DaSL) for the
+    automated integration and visualization of publicly available cancer
+    incidence data for the Fred Hutch Cancer Center catchment area.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Imports:
+    dplyr,
+    htmltools,
+    leaflet,
+    sf,
+    shiny,
+    shinycssloaders,
+    shinydashboard,
+    tigris
+Depends: 
+    R (>= 2.10)
+Config/testthat/edition: 3

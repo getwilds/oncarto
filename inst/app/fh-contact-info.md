@@ -1,0 +1,1 @@
+This application was developed by the [Fred Hutch Data Science Lab (DaSL)](https://hutchdatascience.org) organization. For questions or feedback regarding this application, email [DaSL Translational Analytics](https://hutchdatascience.org/tr-analytics/) at [analytics@fredhutch.org](mailto:analytics@fredhutch.org").
