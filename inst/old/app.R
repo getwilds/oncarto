@@ -28,7 +28,7 @@ library(shinycssloaders)
 # User-provided parameters for app aesthetics
 # Set aesthetics of app (logo and title)
 #source("R/set-aesthetics.R")
-source("set-aesthetics.R")
+source("../../R/set-aesthetics.R")
 set_aesthetics()
 # Set CSS file path
 #css_file_path = "R/www/hutch_theme.css"
@@ -55,6 +55,7 @@ get_incidence_data <- function() {
 
 incidence_data <- get_incidence_data()
 
+## TODO: come back to this
 # Get county boundaries for the choropleth visualization using the tigris package
 wa_counties_sf <- st_transform(
   tigris::counties(state = "WA", class = "sf"),
@@ -110,7 +111,6 @@ ui <- dashboardPage(
         tabItem(
           # County incidence tab
           tabName = "county-incidence",
-
           # Show choropleth map
           fluidRow(
             column(

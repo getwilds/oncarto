@@ -251,14 +251,14 @@ write_to_db <- function(df, df_name) {
 #' )
 #'
 
-ingest_scp_incidence <- function(state, cancer_types, race_options, sex_options, age_options, stage_options, year_options) {
+ingest_scp_incidence <- function(out_name, state, cancer_types, race_options, sex_options, age_options, stage_options, year_options) {
   all_inputs <- get_input_combinations(
     cancer_types, race_options, sex_options, age_options, stage_options, year_options
   )
 
   write_to_db(
     get_incidence_for_all_inputs(state, all_inputs),
-    paste0(state, "_county_incidence")
+    out_name
   )
 }
 
@@ -326,5 +326,37 @@ year_options = c(
   "latest 5 year average"
 )
 
-# ingest_scp_incidence("wa", cancer_types, race_options, sex_options,
-#  age_options, stage_options, year_options)
+################################
+# Define the options for cancer types that can be viewed in the app
+cancer_types = c(
+  "all cancer sites",
+  "breast (female)",
+  "childhood (ages <15, all sites)",
+  "prostate"
+)
+
+race_options = c(
+  "All Races (includes Hispanic)"
+)
+
+sex_options = c(
+  "both sexes",
+  "males",
+  "females"
+)
+
+age_options = c(
+  "all ages",
+  "ages <15"
+)
+
+stage_options = c(
+  "all stages"
+)
+
+year_options = c(
+  "latest 5 year average"
+)
+
+ingest_scp_incidence("sample_wa_county_incidence", "wa", cancer_types, race_options, sex_options,
+  age_options, stage_options, year_options)
